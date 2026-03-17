@@ -30,8 +30,7 @@ jobs:
           CI: true
 
       - name: Deploy to Pages
-        uses: CidOmega/omega-swiss@0.0.1
+        uses: actions/upload-pages-artifact@v3
         env:
-          GH_PAT: ${{ secrets.GH_PAT }}
-          BUILD_DIR: ./dist
+          path: ./dist
           
