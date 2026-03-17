@@ -1,5 +1,11 @@
 name: Pages CI
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 # Controls when the workflow will run
 on:
   push:
@@ -47,5 +53,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        with: 
-          token: '${{ secrets.TOKEN }}'
