@@ -15,10 +15,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js 11.9.0
+      - name: Setup Node.js 24.14.0
         uses: actions/setup-node@v6.3.0
         with:
-          node-version: 11.9.0
+          node-version: 24.14.0
 
       # Runs a set of commands using the runners shell
       - name: Run build
