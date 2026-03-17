@@ -4,13 +4,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OmegaSwiss</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+          crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"
+            defer></script>
+    <script type="module" src="../src/main.ts" defer></script>
 </head>
 <body>
-<h1>Torneo de ejemplo.</h1>
+<h1 id="mainTitle">Torneo de ejemplo.</h1>
 
-<table class="table table-striped table-bordered">
+<table id="mainTable" class="table table-striped table-bordered">
     <thead>
     <tr class="table-dark">
         <th scope="col" class="col"></th>
@@ -20,47 +28,43 @@
     </tr>
     </thead>
     <tbody class="table-group-divider">
-    <tr>
+    <tr class="match-row">
         <th scope="row" class="text-center">1</th>
-        <td class="table-success">Player 1</td>
+        <td class="cell-player-A table-success">Player 1</td>
         <td>
             <button type="button" class="btn btn-warning col-12">Empate</button>
             <button type="button" class="btn btn-danger col-12 text-nowrap">Doble KO</button>
         </td>
-        <td class="table-danger">Player 2</td>
+        <td class="cell-player-B table-danger">Player 2</td>
     </tr>
-    <tr>
+    <tr class="match-row">
         <th scope="row" class="text-center">2</th>
-        <td class="table-warning">Player 3</td>
+        <td class="cell-player-A table-warning">Player 3</td>
         <td>
             <button type="button" class="btn btn-warning col-12">Empate</button>
             <button type="button" class="btn btn-danger col-12 text-nowrap">Doble KO</button>
         </td>
-        <td class="table-warning">Player 4</td>
+        <td class="cell-player-B table-warning">Player 4</td>
     </tr>
-    <tr>
+    <tr class="match-row">
         <th scope="row" class="text-center">3</th>
-        <td class="table-danger">Player 5</td>
+        <td class="cell-player-A table-danger">Player 5</td>
         <td>
             <button type="button" class="btn btn-warning col-12">Empate</button>
             <button type="button" class="btn btn-danger col-12 text-nowrap">Doble KO</button>
         </td>
-        <td class="table-danger">Player 6</td>
+        <td class="cell-player-B table-danger">Player 6</td>
     </tr>
-    <tr>
+    <tr class="match-row">
         <th scope="row" class="text-center">4</th>
-        <td class="table-success">Player 7</td>
+        <td class="cell-player-A table-success">Player 7</td>
         <td>
             <button type="button" class="btn btn-warning col-12">Empate</button>
             <button type="button" class="btn btn-danger col-12 text-nowrap">Doble KO</button>
         </td>
-        <td class="table-danger">Bye</td>
+        <td class="cell-player-B table-danger">Bye</td>
     </tr>
     </tbody>
 </table>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
 </body>
 </html>

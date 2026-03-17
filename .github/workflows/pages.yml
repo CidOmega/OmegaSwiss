@@ -1,0 +1,37 @@
+name: Pages CI
+
+# Controls when the workflow will run
+on:
+  push:
+    branches: [ "master" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 11.9.0
+        uses: actions/setup-node@v6.3.0
+        with:
+          node-version: 11.9.0
+
+      # Runs a set of commands using the runners shell
+      - name: Run build
+        run: |
+          npm install
+          npm run build --if-present
+          ll
+        env:
+          CI: true
+
+      - name: Deploy to Pages
+        uses: CidOmega/omega-swiss@0.0.1
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+          BUILD_DIR: ./dist
+          
