@@ -1,16 +1,15 @@
-export function setupMatchRow(matchRow: HTMLElement) {
-    const setCounter = () => {
-        let cellPlayerA = matchRow.getElementsByClassName('cell-player-A')[0];
-        cellPlayerA.innerHTML = cellPlayerA.innerHTML + cellPlayerA.innerHTML;
-    };
+import {Player} from "./Models/Player.ts";
 
-    let buttons = matchRow.getElementsByTagName('button');
-    for (let button of buttons) {
-        button.addEventListener('click', () => setCounter());
-    }
+export function setupTournament() {
+    let players: Player[] = [];
+
+    $('button#new-player').on('click', () => {
+        players.push({id: crypto.randomUUID(), name: crypto.randomUUID()})
+    });
+
+    $('button#export-player').on('click', () => {
+        console.log(players);
+    });
 }
 
-let matchRows = document.getElementsByClassName('match-row')
-for (let matchRow of matchRows) {
-    setupMatchRow(matchRow as HTMLElement);
-}
+setupTournament();
