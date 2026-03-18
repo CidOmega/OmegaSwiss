@@ -21,10 +21,51 @@
 </head>
 <body>
 <h1 id="mainTitle">
-    Torneo de ejemplo.
-    <button id="new-player" type="button" class="btn btn-primary text-nowrap">+ Jugador</button>
-    <button id="export-player" type="button" class="btn btn-primary text-nowrap">Export</button>
+    Omega Swiss
 </h1>
+
+<div class="card">
+    <div class="navbar navbar-light bg-light" id="headingOne"
+         data-bs-toggle="collapse" data-bs-target="#collapseOne"
+         aria-expanded="true" aria-controls="collapseOne">
+        <h5 class="mb-0">
+            <button class="btn btn-link">
+                Jugadores
+            </button>
+        </h5>
+    </div>
+    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-bs-parent="#accordion">
+        <div class="card-body">
+            <div class="row">
+                <div class="form-group col-3">
+                    <label for="player-name-input" class="visually-hidden">Nombre</label>
+                    <input id="player-name-input" class="form-control col-1" type="text" placeholder="Nombre">
+                </div>
+                <div class="form-group col-3">
+                    <button id="new-player" type="button" class="btn btn-primary text-nowrap">+ Jugador</button>
+                </div>
+                <div class="form-group col-3 invisible">
+                    <button id="export-players" type="button" class="btn btn-primary text-nowrap">Export
+                    </button>
+                    <button id="import-players" type="button" class="btn btn-primary text-nowrap">Export
+                    </button>
+                </div>
+            </div>
+            <div class="row p-1">
+                <table id="player-table" class="table table-striped table-bordered">
+                    <thead>
+                    <tr class="table-dark">
+                        <th scope="col" class="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                    <!--Emtpy at start-->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
 <table id="mainTable" class="table table-striped table-bordered">
     <thead>
