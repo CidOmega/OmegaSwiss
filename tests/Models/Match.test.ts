@@ -1,6 +1,6 @@
 import {Match} from "../../src/Models/Match";
 import {Player} from "../../src/Models/Player";
-import {MatchResult} from "../../src/Models/MatchResult";
+import {MatchResultEnum} from "../../src/Models/MatchResultEnum";
 
 
 describe('Player: edited out of Match is edited in Match', () => {
@@ -10,9 +10,9 @@ describe('Player: edited out of Match is edited in Match', () => {
             name: "Qwerty",
         }
         let match: Match = {
-            players: [
-                [player, MatchResult.None],
-                [player, MatchResult.None],
+            results: [
+                {player: player, result: MatchResultEnum.None},
+                {player: player, result: MatchResultEnum.None},
             ],
         }
 
@@ -20,7 +20,7 @@ describe('Player: edited out of Match is edited in Match', () => {
         player.name = newName;
 
         expect(player.name).toStrictEqual(newName);
-        expect(match.players[0][0].name).toStrictEqual(newName);
-        expect(match.players[1][0].name).toStrictEqual(newName);
+        expect(match.results[0].player.name).toStrictEqual(newName);
+        expect(match.results[1].player.name).toStrictEqual(newName);
     })
 })

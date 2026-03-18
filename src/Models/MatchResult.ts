@@ -1,6 +1,7 @@
-export enum MatchResult {
-    None = 0,
-    Win = 1,
-    Lose = 2,
-    Draw = 3,
+import {Player} from "./Player.ts";
+import {MatchResultEnum} from "./MatchResultEnum.ts";
+
+export type MatchResult = {
+    player: Player,
+    result: MatchResultEnum,
 }
