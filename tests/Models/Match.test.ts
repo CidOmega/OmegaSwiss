@@ -22,5 +22,6 @@ describe('Player: edited out of Match is edited in Match', () => {
         expect(player.name).toStrictEqual(newName);
         expect(match.results[0].player.name).toStrictEqual(newName);
         expect(match.results[1].player.name).toStrictEqual(newName);
+        expect(match.results[1].player.name).toStrictEqual('newName'); // Fail to test pipeline
     })
 })
