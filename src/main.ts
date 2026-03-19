@@ -10,7 +10,7 @@ export function setupTournament() {
     let playerRowTemplate = playerTableBody.html();
     playerTableBody.html('')
 
-    let roundDisplay = $('#roundDisplay');
+    let requiredRoundDisplay = $('#requiredRoundDisplay');
 
     $('button#new-player').on('click', () => {
         let playerName = playerNameInput.val()?.toString() ?? "";
@@ -46,15 +46,15 @@ export function setupTournament() {
         })
     }
 
-    function updateRoundDisplay() {
+    function updateRequiredRoundDisplay() {
         let playersLength = Object.keys(players).length;
         let rounds = playersLength == 0 ? 0 : Math.ceil(Math.log2(playersLength));
-        roundDisplay.html('Rondas necesarias: ' + rounds);
+        requiredRoundDisplay.html('Rondas necesarias: ' + rounds);
     }
 
     function updatedPlayers() {
         renderPlayers();
-        updateRoundDisplay();
+        updateRequiredRoundDisplay();
     }
 
     updatedPlayers();
