@@ -21,8 +21,7 @@ export function setupTournament() {
 
         let newPlayer: Player = {id: crypto.randomUUID(), name: playerName};
         players[newPlayer.id] = newPlayer;
-        renderPlayers()
-        updateRoundDisplay()
+        updatedPlayers()
         playerNameInput.trigger('focus');
     });
 
@@ -43,7 +42,7 @@ export function setupTournament() {
         $('button.btn-delete-player').on('click', (e) => {
             let playerId = $(e.target).attr('data-related') ?? "";
             delete players[playerId];
-            renderPlayers();
+            updatedPlayers();
         })
     }
 
@@ -53,7 +52,12 @@ export function setupTournament() {
         roundDisplay.html('Rondas necesarias: ' + rounds);
     }
 
-    updateRoundDisplay()
+    function updatedPlayers() {
+        renderPlayers();
+        updateRoundDisplay();
+    }
+
+    updatedPlayers();
 }
 
 setupTournament();
