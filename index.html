@@ -55,19 +55,25 @@
                 <table id="player-table" class="table table-striped table-bordered">
                     <thead>
                     <tr class="table-dark">
+                        <th scope="col" class="col-12"></th>
                         <th scope="col" class="col"></th>
                     </tr>
                     </thead>
                     <tbody class="table-group-divider">
-                    <!--Emtpy at start-->
+                    <tr>
+                        <td>${playerName}</td>
+                        <th scope="row">
+                            <button type="button" class="btn-delete-player btn btn-danger" data-related="${playerId}">D</button>
+                        </th>
+                    </tr>
                     </tbody>
                 </table>
             </div>
         </div>
+        <h5 id="roundDisplay">Ronda X</h5>
     </div>
 </div>
 
-<h2 id="roundDisplay">Ronda X</h2>
 <table id="mainTable" class="table table-striped table-bordered">
     <thead>
     <tr class="table-dark">

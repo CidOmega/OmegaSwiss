@@ -1,10 +1,14 @@
 import {Player} from "./Models/Player.ts";
 
 export function setupTournament() {
-    let players: Player[] = [];
+    let players: { [id: string]: Player } = {};
     let playerNameInput = $('input#player-name-input');
     let playerTable = $('table#player-table');
     let playerTableBody = playerTable.find('tbody');
+
+    // Grab the template and destroy it
+    let playerRowTemplate = playerTableBody.html();
+    playerTableBody.html('')
 
     let roundDisplay = $('#roundDisplay');
 
@@ -16,19 +20,39 @@ export function setupTournament() {
         playerNameInput.val("")
 
         let newPlayer: Player = {id: crypto.randomUUID(), name: playerName};
-        players.push(newPlayer)
-        playerTableBody.append('<tr><td>' + newPlayer.name + '</td></tr>');
+        players[newPlayer.id] = newPlayer;
+        renderPlayers()
         updateRoundDisplay()
+        playerNameInput.trigger('focus');
     });
 
     $('button#export-players').on('click', () => {
         console.log(players);
     });
-    
+
+    function renderPlayers() {
+        playerTableBody.html('')
+        for (let key in players) {
+            let player = players[key];
+            let newRowHtml = playerRowTemplate;
+            newRowHtml = newRowHtml.replace('${playerId}', player.id);
+            newRowHtml = newRowHtml.replace('${playerName}', player.name);
+            playerTableBody.append(newRowHtml);
+        }
+
+        $('button.btn-delete-player').on('click', (e) => {
+            let playerId = $(e.target).attr('data-related') ?? "";
+            delete players[playerId];
+            renderPlayers();
+        })
+    }
+
     function updateRoundDisplay() {
-        let rounds = players.length == 0 ? 0 : Math.ceil(Math.log2(players.length));
+        let playersLength = Object.keys(players).length;
+        let rounds = playersLength == 0 ? 0 : Math.ceil(Math.log2(playersLength));
         roundDisplay.html('Rondas necesarias: ' + rounds);
     }
+
     updateRoundDisplay()
 }
 
