@@ -63,7 +63,9 @@
                     <tr>
                         <td>${playerName}</td>
                         <th scope="row">
-                            <button type="button" class="btn-delete-player btn btn-danger" data-related="${playerId}">D</button>
+                            <button type="button" class="btn-delete-player btn btn-danger" data-related="${playerId}">
+                                D
+                            </button>
                         </th>
                     </tr>
                     </tbody>
@@ -73,54 +75,72 @@
         <h5 id="requiredRoundDisplay">Ronda X</h5>
     </div>
 </div>
+<div class="card">
+    <div class="navbar navbar-light bg-light" id="headingTwo"
+         data-bs-toggle="collapse" data-bs-target="#collapseTwo"
+         aria-expanded="true" aria-controls="collapseTwo">
+        <h5 class="mb-0">
+            <button class="btn btn-link">
+                Torneo
+            </button>
+        </h5>
+    </div>
+    <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-bs-parent="#accordion">
+        <div class="card-body">
+            <h5 id="roundCountDisplay">Ronda X/Y</h5>
+            <div class="row">
+                <table id="mainTable" class="table table-striped table-bordered">
+                    <thead>
+                    <tr class="table-dark">
+                        <th scope="col" class="col"></th>
+                        <th scope="col" class="col-6"></th>
+                        <th scope="col" class="col"></th>
+                        <th scope="col" class="col-6"></th>
+                    </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                    <tr class="match-row">
+                        <th scope="row" class="text-center">1</th>
+                        <td class="cell-player-A table-success">Player 1</td>
+                        <td>
+                            <button type="button" class="btn btn-warning col-12">Empate</button>
+                            <button type="button" class="btn btn-danger col-12 text-nowrap">Doble KO</button>
+                        </td>
+                        <td class="cell-player-B table-danger">Player 2</td>
+                    </tr>
+                    <tr class="match-row">
+                        <th scope="row" class="text-center">2</th>
+                        <td class="cell-player-A table-warning">Player 3</td>
+                        <td>
+                            <button type="button" class="btn btn-warning col-12">Empate</button>
+                            <button type="button" class="btn btn-danger col-12 text-nowrap">Doble KO</button>
+                        </td>
+                        <td class="cell-player-B table-warning">Player 4</td>
+                    </tr>
+                    <tr class="match-row">
+                        <th scope="row" class="text-center">3</th>
+                        <td class="cell-player-A table-danger">Player 5</td>
+                        <td>
+                            <button type="button" class="btn btn-warning col-12">Empate</button>
+                            <button type="button" class="btn btn-danger col-12 text-nowrap">Doble KO</button>
+                        </td>
+                        <td class="cell-player-B table-danger">Player 6</td>
+                    </tr>
+                    <tr class="match-row">
+                        <th scope="row" class="text-center">4</th>
+                        <td class="cell-player-A table-success">Player 7</td>
+                        <td>
+                            <button type="button" class="btn btn-warning col-12">Empate</button>
+                            <button type="button" class="btn btn-danger col-12 text-nowrap">Doble KO</button>
+                        </td>
+                        <td class="cell-player-B table-danger">Bye</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
-<table id="mainTable" class="table table-striped table-bordered">
-    <thead>
-    <tr class="table-dark">
-        <th scope="col" class="col"></th>
-        <th scope="col" class="col-6"></th>
-        <th scope="col" class="col"></th>
-        <th scope="col" class="col-6"></th>
-    </tr>
-    </thead>
-    <tbody class="table-group-divider">
-    <tr class="match-row">
-        <th scope="row" class="text-center">1</th>
-        <td class="cell-player-A table-success">Player 1</td>
-        <td>
-            <button type="button" class="btn btn-warning col-12">Empate</button>
-            <button type="button" class="btn btn-danger col-12 text-nowrap">Doble KO</button>
-        </td>
-        <td class="cell-player-B table-danger">Player 2</td>
-    </tr>
-    <tr class="match-row">
-        <th scope="row" class="text-center">2</th>
-        <td class="cell-player-A table-warning">Player 3</td>
-        <td>
-            <button type="button" class="btn btn-warning col-12">Empate</button>
-            <button type="button" class="btn btn-danger col-12 text-nowrap">Doble KO</button>
-        </td>
-        <td class="cell-player-B table-warning">Player 4</td>
-    </tr>
-    <tr class="match-row">
-        <th scope="row" class="text-center">3</th>
-        <td class="cell-player-A table-danger">Player 5</td>
-        <td>
-            <button type="button" class="btn btn-warning col-12">Empate</button>
-            <button type="button" class="btn btn-danger col-12 text-nowrap">Doble KO</button>
-        </td>
-        <td class="cell-player-B table-danger">Player 6</td>
-    </tr>
-    <tr class="match-row">
-        <th scope="row" class="text-center">4</th>
-        <td class="cell-player-A table-success">Player 7</td>
-        <td>
-            <button type="button" class="btn btn-warning col-12">Empate</button>
-            <button type="button" class="btn btn-danger col-12 text-nowrap">Doble KO</button>
-        </td>
-        <td class="cell-player-B table-danger">Bye</td>
-    </tr>
-    </tbody>
-</table>
 </body>
 </html>
