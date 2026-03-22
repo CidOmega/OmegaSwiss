@@ -87,7 +87,16 @@
     </div>
     <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-bs-parent="#accordion">
         <div class="card-body">
-            <h5 id="roundCountDisplay">Ronda X/Y</h5>
+            <div class="row">
+                <div class="col-6 text-start">
+                    <h5 id="roundCountDisplay">Ronda X/Y</h5>
+                </div>
+                <div id="swapDrawContainer" class="col-6 text-end">
+                    <label>Cambiar modalidad:</label>
+                    <button type="button" class="btn-draw btn btn-warning col-2 text-nowrap">Empate</button>
+                    <button type="button" class="btn-double-ko btn btn-danger col-2 ">Doble KO</button>
+                </div>
+            </div>
             <div class="row">
                 <table id="mainTable" class="table table-striped table-bordered">
                     <thead>

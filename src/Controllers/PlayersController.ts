@@ -2,6 +2,7 @@ import {Player} from "../Models/Player.ts";
 
 export function setupPlayersController() {
     let players: { [id: string]: Player } = {};
+
     let playerNameInput = $('input#player-name-input');
     let playerTable = $('table#player-table');
     let playerTableBody = playerTable.find('tbody');
