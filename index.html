@@ -87,14 +87,23 @@
     </div>
     <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-bs-parent="#accordion">
         <div class="card-body">
-            <div class="row">
+            <div class="row m-1">
                 <div class="col-6 text-start">
                     <h5 id="roundCountDisplay">Ronda X/Y</h5>
+                    <button id="startTournament" type="button" class="btn btn-primary text-nowrap">Empezar</button>
                 </div>
                 <div id="swapDrawContainer" class="col-6 text-end">
-                    <label>Cambiar modalidad:</label>
-                    <button type="button" class="btn-draw btn btn-warning col-2 text-nowrap">Empate</button>
-                    <button type="button" class="btn-double-ko btn btn-danger col-2 ">Doble KO</button>
+                    <div class="row">
+                        <div class="col-12 col-lg-10">
+                            <div class="row">
+                                <p class="col-12">Cambiar modalidad:</p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-2">
+                            <button type="button" class="btn-draw btn btn-warning text-nowrap">Empate</button>
+                            <button type="button" class="btn-double-ko btn btn-danger text-nowrap">Doble KO</button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="row">
