@@ -1,5 +1,6 @@
 import {Player} from "../Models/Player.ts";
 import {Round} from "../Models/Round.ts";
+import {MatchResultEnum} from "../Models/MatchResultEnum.ts";
 
 export function setupRound(round: Round) {
     let drawIsDraw = false;
@@ -26,7 +27,70 @@ export function setupRound(round: Round) {
             let match = round.matches[i];
             mainTableBody.append(getMatchRowHtml(match.results[0].player, match.results[1].player, i));
         }
+        setMatchStatus();
+        setButtonsEvents();
         renderSwapDraw();
+    }
+
+    function setMatchStatus() {
+        for (let match of round.matches) {
+            for (let result of match.results) {
+                let playerCell = $(`[data-related=${result.player.id}].player-cell`);
+                switch (result.result) {
+                    case MatchResultEnum.Win:
+                        playerCell.addClass('table-success');
+                        break;
+                    case MatchResultEnum.Lose:
+                        playerCell.addClass('table-danger');
+                        break;
+                    case MatchResultEnum.Draw:
+                        playerCell.addClass('table-warning');
+                        break;
+
+                }
+            }
+        }
+    }
+
+    function setButtonsEvents() {
+        $('.btn-draw').on('click', function (e) {
+            let matchIndex = Number.parseInt($(e.target).attr('data-related') ?? "X");
+            let match = round.matches[matchIndex];
+            if (!!match) {
+                for (let result of match.results) {
+                    result.result = MatchResultEnum.Draw;
+                }
+            }
+            renderTable();
+        });
+
+        $('.btn-double-ko').on('click', function (e) {
+            let matchIndex = Number.parseInt($(e.target).attr('data-related') ?? "X");
+            let match = round.matches[matchIndex];
+            if (!!match) {
+                for (let result of match.results) {
+                    result.result = MatchResultEnum.Lose;
+                }
+            }
+            renderTable();
+        });
+
+        $('.btn-win').on('click', function (e) {
+            let button = $(e.target);
+            let playerId = button.attr('data-related') ?? "X";
+            let matchIndex = Number.parseInt(button.attr('data-related-match') ?? "X");
+            let match = round.matches[matchIndex];
+            if (!!match) {
+                for (let result of match.results) {
+                    if (result.player.id === playerId) {
+                        result.result = MatchResultEnum.Win;
+                    } else {
+                        result.result = MatchResultEnum.Lose;
+                    }
+                }
+            }
+            renderTable();
+        });
     }
 
     function renderSwapDraw() {
@@ -44,7 +108,7 @@ export function setupRound(round: Round) {
     <td data-related="${player1.id}" class="player-cell">
         <button type="button" data-related="${player1.id}" class="btn-retreat btn btn-secondary">Retirada</button>
         ${player1.name}
-        <button type="button" data-related="${player1.id}" class="btn-win btn btn-success float-end">Victoria</button>
+        <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>
     <td>
         <button type="button" data-related="${matchIndex}" class="btn-draw btn btn-warning col-12">Empate</button>
@@ -53,7 +117,7 @@ export function setupRound(round: Round) {
     <td data-related="${player2.id}" class="player-cell">
         <button type="button" data-related="${player2.id}" class="btn-retreat btn btn-secondary">Retirada</button>
         ${player2.name}
-        <button type="button" data-related="${player2.id}" class="btn-win btn btn-success float-end">Victoria</button>
+        <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>
     </tr>
 `
