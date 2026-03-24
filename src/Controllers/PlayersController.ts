@@ -1,15 +1,10 @@
 import {Player} from "../Models/Player.ts";
+import {Tools} from "../Tools.ts";
 
-export function setupPlayersController() {
-    let players: { [id: string]: Player } = {};
-
+export function setupPlayersController(players: Player[]) {
     let playerNameInput = $('input#player-name-input');
     let playerTable = $('table#player-table');
     let playerTableBody = playerTable.find('tbody');
-
-    // Grab the template and destroy it
-    let playerRowTemplate = playerTableBody.html();
-    playerTableBody.html('')
 
     let requiredRoundDisplay = $('#requiredRoundDisplay');
 
@@ -21,7 +16,7 @@ export function setupPlayersController() {
         playerNameInput.val("")
 
         let newPlayer: Player = {id: crypto.randomUUID(), name: playerName};
-        players[newPlayer.id] = newPlayer;
+        players.push(newPlayer);
         updatedPlayers()
         playerNameInput.trigger('focus');
     });
@@ -32,25 +27,30 @@ export function setupPlayersController() {
 
     function renderPlayers() {
         playerTableBody.html('')
-        for (let key in players) {
-            let player = players[key];
-            let newRowHtml = playerRowTemplate;
-            newRowHtml = newRowHtml.replace('${playerId}', player.id);
-            newRowHtml = newRowHtml.replace('${playerName}', player.name);
+        for (let i = 0; i < players.length; i++) {
+            let player = players[i];
+            let newRowHtml = `
+            <tr>
+                <td>${player.name}</td>
+                <th scope="row">
+                    <button type="button" class="btn-delete-player btn btn-danger" data-related="${i}">
+                        D
+                    </button>
+                </th>
+            </tr>
+            `;
             playerTableBody.append(newRowHtml);
         }
 
         $('button.btn-delete-player').on('click', (e) => {
-            let playerId = $(e.target).attr('data-related') ?? "";
-            delete players[playerId];
+            let playerId = Number.parseInt($(e.target).attr('data-related') ?? "X");
+            players.splice(playerId, 1);
             updatedPlayers();
         })
     }
 
     function updateRequiredRoundDisplay() {
-        let playersLength = Object.keys(players).length;
-        let rounds = playersLength == 0 ? 0 : Math.ceil(Math.log2(playersLength));
-        requiredRoundDisplay.html('Rondas necesarias: ' + rounds);
+        requiredRoundDisplay.html(`Rondas necesarias: ${Tools.getRequiredRounds(players.length)}`);
     }
 
     function updatedPlayers() {
