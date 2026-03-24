@@ -91,6 +91,25 @@ export function setupRound(round: Round) {
             }
             renderTable();
         });
+
+        $('.btn-retreat').on('click', function (e) {
+            let button = $(e.target);
+            let playerId = button.attr('data-related') ?? "X";
+            let matchIndex = Number.parseInt(button.attr('data-related-match') ?? "X");
+            let match = round.matches[matchIndex];
+            if (!!match) {
+                for (let result of match.results) {
+                    if (result.player.id === playerId) {
+                        round.retreats.push(result.player);
+                        
+                        // Enforce not repeated players
+                        let set = new Set<Player>(round.retreats);
+                        round.retreats = Array.from(set.values());
+                    }
+                }
+            }
+            renderTable();
+        });
     }
 
     function renderSwapDraw() {
@@ -106,7 +125,7 @@ export function setupRound(round: Round) {
     <tr class="match-row">
     <th scope="row" class="text-center">${matchIndex + 1}</th>
     <td data-related="${player1.id}" class="player-cell">
-        <button type="button" data-related="${player1.id}" class="btn-retreat btn btn-secondary">Retirada</button>
+        <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-retreat btn btn-secondary">Retirada</button>
         ${player1.name}
         <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>
@@ -115,7 +134,7 @@ export function setupRound(round: Round) {
         <button type="button" data-related="${matchIndex}" class="btn-double-ko btn btn-danger col-12 text-nowrap">Doble KO</button>
     </td>
     <td data-related="${player2.id}" class="player-cell">
-        <button type="button" data-related="${player2.id}" class="btn-retreat btn btn-secondary">Retirada</button>
+        <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-retreat btn btn-secondary">Retirada</button>
         ${player2.name}
         <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>
