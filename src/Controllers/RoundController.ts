@@ -4,25 +4,12 @@ import {Round} from "../Models/Round.ts";
 export function setupRound(round: Round) {
     let drawIsDraw = false;
 
-    let startTournament = $('#startTournament');
-    let roundCountDisplay = $('#roundCountDisplay');
-    roundCountDisplay.html('Ronda 1/9');
-
     let swapDrawContainer = $('#swapDrawContainer');
     let setDrawButton = swapDrawContainer.find('.btn-draw')
     let setDoubleKoButton = swapDrawContainer.find('.btn-double-ko')
 
     let mainTable = $('#mainTable');
     let mainTableBody = mainTable.find('tbody');
-
-    startTournament.show();
-    roundCountDisplay.hide();
-    startTournament.on('click', () => {
-        startTournament.hide();
-        roundCountDisplay.show();
-
-        renderTable()
-    });
 
     setDrawButton.on('click', function () {
         drawIsDraw = true;
