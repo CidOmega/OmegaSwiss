@@ -1,6 +1,7 @@
 import {Player} from "../Models/Player.ts";
+import {Round} from "../Models/Round.ts";
 
-export function setupRound() {
+export function setupRound(round: Round) {
     let drawIsDraw = false;
 
     let startTournament = $('#startTournament');
@@ -20,11 +21,7 @@ export function setupRound() {
         startTournament.hide();
         roundCountDisplay.show();
 
-        mainTableBody.html('');
-        mainTableBody.append(getMatchRowHtml({id: '1', name: 'Andy'}, {id: '2', name: 'Lucas'}, 'guid1', 1));
-        mainTableBody.append(getMatchRowHtml({id: '3', name: 'Cid'}, {id: 'X', name: 'Bye'}, 'guid2', 2));
-
-        renderSwapDraw()
+        renderTable()
     });
 
     setDrawButton.on('click', function () {
@@ -36,6 +33,15 @@ export function setupRound() {
         renderSwapDraw();
     });
 
+    function renderTable() {
+        mainTableBody.html('');
+        for (let i = 0; i < round.matches.length; i++) {
+            let match = round.matches[i];
+            mainTableBody.append(getMatchRowHtml(match.results[0].player, match.results[1].player, i));
+        }
+        renderSwapDraw();
+    }
+
     function renderSwapDraw() {
         setDrawButton.toggle(!drawIsDraw);
         setDoubleKoButton.toggle(drawIsDraw);
@@ -44,18 +50,18 @@ export function setupRound() {
         mainTable.find('.btn-double-ko').toggle(!drawIsDraw);
     }
 
-    function getMatchRowHtml(player1: Player, player2: Player, matchId: string, tableNumber: number) {
+    function getMatchRowHtml(player1: Player, player2: Player, matchIndex: number) {
         return `
     <tr class="match-row">
-    <th scope="row" class="text-center">${tableNumber}</th>
+    <th scope="row" class="text-center">${matchIndex + 1}</th>
     <td data-related="${player1.id}" class="player-cell">
         <button type="button" data-related="${player1.id}" class="btn-retreat btn btn-secondary">Retirada</button>
         ${player1.name}
         <button type="button" data-related="${player1.id}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>
     <td>
-        <button type="button" data-related="${matchId}" class="btn-draw btn btn-warning col-12">Empate</button>
-        <button type="button" data-related="${matchId}" class="btn-double-ko btn btn-danger col-12 text-nowrap">Doble KO</button>
+        <button type="button" data-related="${matchIndex}" class="btn-draw btn btn-warning col-12">Empate</button>
+        <button type="button" data-related="${matchIndex}" class="btn-double-ko btn btn-danger col-12 text-nowrap">Doble KO</button>
     </td>
     <td data-related="${player2.id}" class="player-cell">
         <button type="button" data-related="${player2.id}" class="btn-retreat btn btn-secondary">Retirada</button>
@@ -66,5 +72,5 @@ export function setupRound() {
 `
     }
 
-    renderSwapDraw();
+    renderTable();
 }
