@@ -1,6 +1,6 @@
 import {Player} from "../Models/Player.ts";
 
-export function setupTournament() {
+export function setupRound() {
     let drawIsDraw = false;
 
     let startTournament = $('#startTournament');

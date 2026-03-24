@@ -1,9 +1,9 @@
 import {setupPlayersController} from "./Controllers/PlayersController.ts";
-import {setupTournament} from "./Controllers/TournamentController.ts";
+import {setupRound} from "./Controllers/RoundController.ts";
 
 export function setupApp() {
     setupPlayersController()
-    setupTournament()
+    setupRound()
 }
 
 setupApp();
