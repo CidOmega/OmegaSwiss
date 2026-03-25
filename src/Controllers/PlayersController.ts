@@ -9,6 +9,18 @@ export function setupPlayersController(players: Player[]) {
     let requiredRoundDisplay = $('#requiredRoundDisplay');
 
     $('button#new-player').on('click', () => {
+        newPlayer();
+        playerNameInput.trigger('focus');
+    });
+    playerNameInput.on('keydown', (e) => {
+        if (e.key === 'Enter') {
+            newPlayer();
+        }
+
+        playerNameInput.trigger('focus');
+    });
+
+    function newPlayer() {
         let playerName = playerNameInput.val()?.toString() ?? "";
         if (playerName === "") {
             return;
@@ -17,9 +29,8 @@ export function setupPlayersController(players: Player[]) {
 
         let newPlayer: Player = {id: crypto.randomUUID(), name: playerName};
         players.push(newPlayer);
-        updatedPlayers()
-        playerNameInput.trigger('focus');
-    });
+        updatedPlayers();
+    }
 
     $('button#export-players').on('click', () => {
         console.log(players);
