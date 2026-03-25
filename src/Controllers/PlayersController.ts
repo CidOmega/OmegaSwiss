@@ -37,6 +37,11 @@ export function setupPlayersController() {
         console.log(PlayerStorage.GetPlayers());
     });
 
+    $('button#resetPlayers').on('click', () => {
+        PlayerStorage.ResetPlayers();
+        updatedPlayers();
+    });
+
     function renderPlayers() {
         playerTableBody.html('')
         let players = PlayerStorage.GetPlayers();

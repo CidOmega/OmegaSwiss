@@ -15,5 +15,8 @@ export const PlayerStorage = {
         let players = this.GetPlayers();
         players.splice(index, 1);
         window.localStorage.setItem(this.Key, JSON.stringify(players));
-    }
+    },
+    ResetPlayers() {
+        window.localStorage.removeItem(this.Key);
+    },
 };
