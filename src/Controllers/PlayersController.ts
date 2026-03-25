@@ -43,8 +43,8 @@ export function setupPlayersController(players: Player[]) {
         }
 
         $('button.btn-delete-player').on('click', (e) => {
-            let playerId = Number.parseInt($(e.target).attr('data-related') ?? "X");
-            players.splice(playerId, 1);
+            let playerIndex = Number.parseInt($(e.target).attr('data-related') ?? "X");
+            players.splice(playerIndex, 1);
             updatedPlayers();
         })
     }

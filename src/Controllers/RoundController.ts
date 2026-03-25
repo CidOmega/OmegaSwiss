@@ -11,6 +11,7 @@ export function setupRound(round: Round) {
 
     let mainTable = $('#mainTable');
     let mainTableBody = mainTable.find('tbody');
+    let roundRetreatTableBody = $('#roundRetreatTable').find('tbody');
 
     setDrawButton.on('click', function () {
         drawIsDraw = true;
@@ -21,15 +22,20 @@ export function setupRound(round: Round) {
         renderSwapDraw();
     });
 
+    function render() {
+        renderTable();
+        setMatchStatus();
+        setButtonsEvents();
+        renderSwapDraw();
+        renderRetreats();
+    }
+
     function renderTable() {
         mainTableBody.html('');
         for (let i = 0; i < round.matches.length; i++) {
             let match = round.matches[i];
             mainTableBody.append(getMatchRowHtml(match.results[0].player, match.results[1].player, i));
         }
-        setMatchStatus();
-        setButtonsEvents();
-        renderSwapDraw();
     }
 
     function setMatchStatus() {
@@ -61,7 +67,7 @@ export function setupRound(round: Round) {
                     result.result = MatchResultEnum.Draw;
                 }
             }
-            renderTable();
+            render();
         });
 
         $('.btn-double-ko').on('click', function (e) {
@@ -72,7 +78,7 @@ export function setupRound(round: Round) {
                     result.result = MatchResultEnum.Lose;
                 }
             }
-            renderTable();
+            render();
         });
 
         $('.btn-win').on('click', function (e) {
@@ -89,7 +95,7 @@ export function setupRound(round: Round) {
                     }
                 }
             }
-            renderTable();
+            render();
         });
 
         $('.btn-retreat').on('click', function (e) {
@@ -101,14 +107,14 @@ export function setupRound(round: Round) {
                 for (let result of match.results) {
                     if (result.player.id === playerId) {
                         round.retreats.push(result.player);
-                        
+
                         // Enforce not repeated players
                         let set = new Set<Player>(round.retreats);
                         round.retreats = Array.from(set.values());
                     }
                 }
             }
-            renderTable();
+            render();
         });
     }
 
@@ -118,6 +124,30 @@ export function setupRound(round: Round) {
 
         mainTable.find('.btn-draw').toggle(drawIsDraw);
         mainTable.find('.btn-double-ko').toggle(!drawIsDraw);
+    }
+
+    function renderRetreats() {
+        roundRetreatTableBody.html('')
+        for (let i = 0; i < round.retreats.length; i++){
+            let retreat = round.retreats[i];
+            let row = `
+            <tr>
+                <td>${retreat.name}</td>
+                <th scope="row">
+                    <button type="button" class="btn-cancel-retreat btn btn-danger" data-related="${i}">
+                        Cancelar
+                    </button>
+                </th>
+            </tr>
+            `
+            roundRetreatTableBody.append(row);
+        }
+        
+        $('.btn-cancel-retreat').on('click', function (e) {
+            let playerIndex = Number.parseInt($(e.target).attr('data-related') ?? "X");
+            round.retreats.splice(playerIndex, 1);
+            render();
+        })
     }
 
     function getMatchRowHtml(player1: Player, player2: Player, matchIndex: number) {
@@ -142,5 +172,5 @@ export function setupRound(round: Round) {
 `
     }
 
-    renderTable();
+    render();
 }
