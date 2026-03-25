@@ -1,10 +1,8 @@
 import {setupPlayersController} from "./Controllers/PlayersController.ts";
 import {setupRound} from "./Controllers/RoundController.ts";
-import {Round} from "./Models/Round.ts";
-import {MatchResultEnum} from "./Models/MatchResultEnum.ts";
 import {Tools} from "./Tools.ts";
-import {Match} from "./Models/Match.ts";
 import {PlayerStorage} from "./Storage/PlayerStorage.ts";
+import {Tournament} from "./Models/Tournament.ts";
 
 export function setupApp() {
     let playerSection = $('#playerSection');
@@ -14,33 +12,19 @@ export function setupApp() {
     let startTournament = $('#startTournament');
     let roundCountDisplay = $('#roundCountDisplay');
 
-    startTournament.show();
-    roundCountDisplay.hide();
     startTournament.on('click', () => {
         let players = PlayerStorage.GetPlayers();
-        if (players.length % 2 == 1) {
-            players.push({id: 'X', name: 'Bye'});
-        }
+        let tournament = new Tournament(players);
+        let round = tournament.getNextRound();
 
         startTournament.hide();
         roundCountDisplay.show();
         roundCountDisplay.html(`Ronda 1/${Tools.getRequiredRounds(players.length)}`);
 
-        let matches: Match[] = [];
-        for (let i = 0; i < players.length / 2; i++) {
-            let index = i * 2;
-            matches.push({
-                results: [
-                    {result: MatchResultEnum.None, player: players[index]},
-                    {result: MatchResultEnum.None, player: players[index + 1]},
-                ],
-            })
-        }
-
         // "Start" is in the collapse section, it will be opened.
         headingOne.trigger('click');
         roundSection.show();
-        setupRound(new Round(matches));
+        setupRound(round);
     });
 
     playerSection.show();

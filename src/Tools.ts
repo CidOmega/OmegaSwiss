@@ -2,7 +2,7 @@ export const Tools = {
     getRequiredRounds(playersLength: number) {
         return playersLength == 0 ? 0 : Math.ceil(Math.log2(playersLength));
     },
-    shuffle<T>(array: Array<T>) {
+    shuffle<T>(array: T[]) {
         let currentIndex = array.length;
 
         // While there remain elements to shuffle...
@@ -15,5 +15,9 @@ export const Tools = {
             // And swap it with the current element.
             [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
         }
+    },
+    deleteFromArray<T>(array: T[], element: T) {
+        let index = array.indexOf(element);
+        array.splice(index, 1);
     }
 }

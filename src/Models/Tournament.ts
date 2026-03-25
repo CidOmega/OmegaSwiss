@@ -2,6 +2,8 @@ import {Player} from "./Player.ts";
 import {Round} from "./Round.ts";
 import {PlayerHistory} from "./PlayerHistory.ts";
 import {Tools} from "../Tools.ts";
+import {Match} from "./Match.ts";
+import {MatchResultEnum} from "./MatchResultEnum.ts";
 
 export class Tournament {
     allPlayerHistories: PlayerHistory[] = [];
@@ -38,10 +40,30 @@ export class Tournament {
 
     getNextRound(): Round {
         let players = this.getNextRoundPlayersWithRivals();
-        
-        
 
-        return new Round()
+        let matches: Match[] = []
+
+        let playerPointer = players.shift();
+        while (!!playerPointer) {
+            let availableRivals = players
+                .filter(t => t.availableRivals.indexOf(playerPointer!.player) !== -1);
+            let iAmTheOnlyRival = availableRivals
+                .filter(t => t.availableRivals.length === 1)
+                .shift();
+            let rival = iAmTheOnlyRival ?? availableRivals.shift()!;
+
+            matches.push({
+                results: [
+                    {player: playerPointer.player, result: MatchResultEnum.None},
+                    {player: rival.player, result: MatchResultEnum.None},
+                ]
+            });
+
+            Tools.deleteFromArray(players, rival);
+            playerPointer = players.shift();
+        }
+
+        return new Round(matches);
     }
 
     getNextRoundPlayersWithRivals(): { player: Player, availableRivals: Player[] }[] {
