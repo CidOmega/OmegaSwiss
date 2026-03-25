@@ -1,7 +1,8 @@
 import {Player} from "../Models/Player.ts";
 import {Tools} from "../Tools.ts";
+import {PlayerStorage} from "../Storage/PlayerStorage.ts";
 
-export function setupPlayersController(players: Player[]) {
+export function setupPlayersController() {
     let playerNameInput = $('input#player-name-input');
     let playerTable = $('table#player-table');
     let playerTableBody = playerTable.find('tbody');
@@ -9,6 +10,18 @@ export function setupPlayersController(players: Player[]) {
     let requiredRoundDisplay = $('#requiredRoundDisplay');
 
     $('button#new-player').on('click', () => {
+        newPlayer();
+        playerNameInput.trigger('focus');
+    });
+    playerNameInput.on('keydown', (e) => {
+        if (e.key === 'Enter') {
+            newPlayer();
+        }
+
+        playerNameInput.trigger('focus');
+    });
+
+    function newPlayer() {
         let playerName = playerNameInput.val()?.toString() ?? "";
         if (playerName === "") {
             return;
@@ -16,17 +29,22 @@ export function setupPlayersController(players: Player[]) {
         playerNameInput.val("")
 
         let newPlayer: Player = {id: crypto.randomUUID(), name: playerName};
-        players.push(newPlayer);
-        updatedPlayers()
-        playerNameInput.trigger('focus');
-    });
+        PlayerStorage.NewPlayer(newPlayer);
+        updatedPlayers();
+    }
 
     $('button#export-players').on('click', () => {
-        console.log(players);
+        console.log(PlayerStorage.GetPlayers());
+    });
+
+    $('button#resetPlayers').on('click', () => {
+        PlayerStorage.ResetPlayers();
+        updatedPlayers();
     });
 
     function renderPlayers() {
         playerTableBody.html('')
+        let players = PlayerStorage.GetPlayers();
         for (let i = 0; i < players.length; i++) {
             let player = players[i];
             let newRowHtml = `
@@ -44,13 +62,13 @@ export function setupPlayersController(players: Player[]) {
 
         $('button.btn-delete-player').on('click', (e) => {
             let playerIndex = Number.parseInt($(e.target).attr('data-related') ?? "X");
-            players.splice(playerIndex, 1);
+            PlayerStorage.DeletePlayerByIndex(playerIndex);
             updatedPlayers();
         })
     }
 
     function updateRequiredRoundDisplay() {
-        requiredRoundDisplay.html(`Rondas necesarias: ${Tools.getRequiredRounds(players.length)}`);
+        requiredRoundDisplay.html(`Rondas necesarias: ${Tools.getRequiredRounds(PlayerStorage.GetPlayers().length)}`);
     }
 
     function updatedPlayers() {
