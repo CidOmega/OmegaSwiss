@@ -1,20 +1,25 @@
 import {Player} from "./Player.ts";
 import {Round} from "./Round.ts";
+import {PlayerHistory} from "./PlayerHistory.ts";
 
 export class Tournament {
-    allPlayers: Player[];
+    allPlayerHistories: PlayerHistory[] = [];
     retreats: Player[] = [];
     rounds: Round[] = [];
 
+    bye: Player = {id: 'X', name: 'Bye'};
+
     constructor(players: Player[]) {
-        this.allPlayers = players;
+        for (let player of players) {
+            this.allPlayerHistories.push(new PlayerHistory(player));
+        }
     }
 
     getActivePlayers(): Player[] {
         let activePlayers: Player[] = [];
-        for (let player of this.allPlayers) {
-            if (this.retreats.indexOf(player) === -1) {
-                activePlayers.push(player);
+        for (let playerHistory of this.allPlayerHistories) {
+            if (this.retreats.indexOf(playerHistory.player) === -1) {
+                activePlayers.push(playerHistory.player);
             }
         }
         return activePlayers;

@@ -1,5 +1,6 @@
 import {Player} from "../../src/Models/Player";
 import {Tournament} from "../../src/Models/Tournament";
+import {PlayerHistory} from "../../src/Models/PlayerHistory";
 
 function newPlayer(): Player {
     return {
@@ -16,7 +17,7 @@ describe('Tournament.getActivePlayers', () => {
         let tournament: Tournament = new Tournament(players);
 
         // Act
-        let activePlayers: Player[] = tournament.getActivePlayers();
+        let activePlayers: PlayerHistory[] = tournament.getActivePlayers();
 
         // Assert
         expect(activePlayers.length).toStrictEqual(3);
@@ -31,7 +32,7 @@ describe('Tournament.getActivePlayers', () => {
         tournament.retreats.push(newPlayer());
 
         // Act
-        let activePlayers: Player[] = tournament.getActivePlayers();
+        let activePlayers: PlayerHistory[] = tournament.getActivePlayers();
 
         // Assert
         expect(activePlayers.length).toStrictEqual(3);
@@ -46,7 +47,7 @@ describe('Tournament.getActivePlayers', () => {
         tournament.retreats.push(players[2]);
 
         // Act
-        let activePlayers: Player[] = tournament.getActivePlayers();
+        let activePlayers: PlayerHistory[] = tournament.getActivePlayers();
 
         // Assert
         expect(activePlayers.length).toStrictEqual(0);
@@ -60,10 +61,10 @@ describe('Tournament.getActivePlayers', () => {
         tournament.retreats.push(players[2]);
 
         // Act
-        let activePlayers: Player[] = tournament.getActivePlayers();
+        let activePlayers: PlayerHistory[] = tournament.getActivePlayers();
 
         // Assert
         expect(activePlayers.length).toStrictEqual(1);
-        expect(activePlayers[0]).toStrictEqual(players[1]);
+        expect(activePlayers[0].player).toStrictEqual(players[1]);
     });
 })
