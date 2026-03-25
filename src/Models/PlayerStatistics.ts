@@ -9,6 +9,17 @@ export class PlayerStatistics {
         this.draws = draws;
     }
 
+    getKda(): string {
+        return `${this.wins}-${this.loses}-${this.draws}`;
+    }
+
+    getKey(): string {
+        let winsString = this.wins.toString().padStart(3, '0');
+        let drawsString = this.draws.toString().padStart(3, '0');
+        let losesString = this.loses.toString().padStart(3, '0');
+        return `${winsString}-${drawsString}-${losesString}`
+    }
+
     // getTrueMatchWinPercentaje() {  ...  }
     // getMatchWinPercentaje() {  return Math.Max(0.33, this.getTrueMatchWinPercentaje())  }
 }
