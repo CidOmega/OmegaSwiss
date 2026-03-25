@@ -28,18 +28,19 @@ export class Tournament {
         return activePlayers;
     }
 
-    getNextRoundPlayers(): PlayerHistory[] {
-        let nextRoundPlayers = this.getActivePlayers();
-
-        if (nextRoundPlayers.length % 2 === 1) {
-            nextRoundPlayers.push(new PlayerHistory(this.bye));
-        }
-
-        return nextRoundPlayers;
+    getByeWithRivals(): { player: Player, availableRivals: Player[] } {
+        let availableRivals = this.getActivePlayers()
+            .filter(ph => ph.getRivals().indexOf(this.bye) === -1)
+            .map(ph => ph.player);
+        return {player: this.bye, availableRivals: availableRivals};
     }
 
     getNextRound(): Round {
         let players = this.getNextRoundPlayersWithRivals();
+
+        if (players.length % 2 === 1) {
+            players.push(this.getByeWithRivals());
+        }
 
         let matches: Match[] = []
 
@@ -59,6 +60,11 @@ export class Tournament {
                 ]
             });
 
+            // TODO estos dos jugadores han dejado de estar disponibles,
+            //  asi que "availableRivals" de los jugadores restantes hay que actualizarlo
+            //  para que si a alguien le quedan 2 el 2º lo pesque.
+            //  ¿Que pasa si alguien tiene 2 disponibles y se emparejan entre ellos?
+            
             Tools.deleteFromArray(players, rival);
             playerPointer = players.shift();
         }
@@ -67,7 +73,7 @@ export class Tournament {
     }
 
     getNextRoundPlayersWithRivals(): { player: Player, availableRivals: Player[] }[] {
-        let activePlayers = this.getNextRoundPlayers().map((ph) => ph.player);
+        let activePlayers = this.getActivePlayers().map((ph) => ph.player);
         let playersTree = this.getNextRoundPlayersTree();
         let treeKeys = Object.keys(playersTree).sort().reverse();
         let players: { player: Player, availableRivals: Player[] }[] = [];
@@ -91,7 +97,7 @@ export class Tournament {
     getNextRoundPlayersTree() {
         let playersTree: { [key: string]: PlayerHistory[] } = {};
 
-        for (let playerHistory of this.getNextRoundPlayers()) {
+        for (let playerHistory of this.getActivePlayers()) {
             let playerStatistics = playerHistory.getStatistics();
             let key = playerStatistics.getKey();
 
