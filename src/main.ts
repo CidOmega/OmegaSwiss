@@ -9,6 +9,10 @@ import {Match} from "./Models/Match.ts";
 export function setupApp() {
     let players: Player[] = []
 
+    let playerSection = $('#playerSection');
+    let headingOne = $('#headingOne');
+    let roundSection = $('#roundSection');
+
     let startTournament = $('#startTournament');
     let roundCountDisplay = $('#roundCountDisplay');
 
@@ -33,8 +37,15 @@ export function setupApp() {
                 ],
             })
         }
+
+        // "Start" is in the collapse section, it will be opened.
+        headingOne.trigger('click');
+        roundSection.show();
         setupRound(new Round(matches));
     });
+
+    playerSection.show();
+    roundSection.hide();
 
     setupPlayersController(players);
 }
