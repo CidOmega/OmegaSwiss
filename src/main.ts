@@ -2,13 +2,11 @@ import {setupPlayersController} from "./Controllers/PlayersController.ts";
 import {setupRound} from "./Controllers/RoundController.ts";
 import {Round} from "./Models/Round.ts";
 import {MatchResultEnum} from "./Models/MatchResultEnum.ts";
-import {Player} from "./Models/Player.ts";
 import {Tools} from "./Tools.ts";
 import {Match} from "./Models/Match.ts";
+import {PlayerStorage} from "./Storage/PlayerStorage.ts";
 
 export function setupApp() {
-    let players: Player[] = []
-
     let playerSection = $('#playerSection');
     let headingOne = $('#headingOne');
     let roundSection = $('#roundSection');
@@ -19,6 +17,7 @@ export function setupApp() {
     startTournament.show();
     roundCountDisplay.hide();
     startTournament.on('click', () => {
+        let players = PlayerStorage.GetPlayers();
         if (players.length % 2 == 1) {
             players.push({id: 'X', name: 'Bye'});
         }
@@ -47,7 +46,7 @@ export function setupApp() {
     playerSection.show();
     roundSection.hide();
 
-    setupPlayersController(players);
+    setupPlayersController();
 }
 
 setupApp();
