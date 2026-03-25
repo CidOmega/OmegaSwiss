@@ -1,63 +1,53 @@
+import {setupPlayersController} from "./Controllers/PlayersController.ts";
+import {setupRound} from "./Controllers/RoundController.ts";
+import {Round} from "./Models/Round.ts";
+import {MatchResultEnum} from "./Models/MatchResultEnum.ts";
 import {Player} from "./Models/Player.ts";
+import {Tools} from "./Tools.ts";
+import {Match} from "./Models/Match.ts";
 
-export function setupTournament() {
-    let players: { [id: string]: Player } = {};
-    let playerNameInput = $('input#player-name-input');
-    let playerTable = $('table#player-table');
-    let playerTableBody = playerTable.find('tbody');
+export function setupApp() {
+    let players: Player[] = []
 
-    // Grab the template and destroy it
-    let playerRowTemplate = playerTableBody.html();
-    playerTableBody.html('')
+    let playerSection = $('#playerSection');
+    let headingOne = $('#headingOne');
+    let roundSection = $('#roundSection');
 
-    let requiredRoundDisplay = $('#requiredRoundDisplay');
+    let startTournament = $('#startTournament');
+    let roundCountDisplay = $('#roundCountDisplay');
 
-    $('button#new-player').on('click', () => {
-        let playerName = playerNameInput.val()?.toString() ?? "";
-        if (playerName === "") {
-            return;
-        }
-        playerNameInput.val("")
-
-        let newPlayer: Player = {id: crypto.randomUUID(), name: playerName};
-        players[newPlayer.id] = newPlayer;
-        updatedPlayers()
-        playerNameInput.trigger('focus');
-    });
-
-    $('button#export-players').on('click', () => {
-        console.log(players);
-    });
-
-    function renderPlayers() {
-        playerTableBody.html('')
-        for (let key in players) {
-            let player = players[key];
-            let newRowHtml = playerRowTemplate;
-            newRowHtml = newRowHtml.replace('${playerId}', player.id);
-            newRowHtml = newRowHtml.replace('${playerName}', player.name);
-            playerTableBody.append(newRowHtml);
+    startTournament.show();
+    roundCountDisplay.hide();
+    startTournament.on('click', () => {
+        if (players.length % 2 == 1) {
+            players.push({id: 'X', name: 'Bye'});
         }
 
-        $('button.btn-delete-player').on('click', (e) => {
-            let playerId = $(e.target).attr('data-related') ?? "";
-            delete players[playerId];
-            updatedPlayers();
-        })
-    }
+        startTournament.hide();
+        roundCountDisplay.show();
+        roundCountDisplay.html(`Ronda 1/${Tools.getRequiredRounds(players.length)}`);
 
-    function updateRequiredRoundDisplay() {
-        let playersLength = Object.keys(players).length;
-        let rounds = playersLength == 0 ? 0 : Math.ceil(Math.log2(playersLength));
-        requiredRoundDisplay.html('Rondas necesarias: ' + rounds);
-    }
+        let matches: Match[] = [];
+        for (let i = 0; i < players.length / 2; i++) {
+            let index = i * 2;
+            matches.push({
+                results: [
+                    {result: MatchResultEnum.None, player: players[index]},
+                    {result: MatchResultEnum.None, player: players[index + 1]},
+                ],
+            })
+        }
 
-    function updatedPlayers() {
-        renderPlayers();
-        updateRequiredRoundDisplay();
-    }
+        // "Start" is in the collapse section, it will be opened.
+        headingOne.trigger('click');
+        roundSection.show();
+        setupRound(new Round(matches));
+    });
 
-    updatedPlayers();
+    playerSection.show();
+    roundSection.hide();
+
+    setupPlayersController(players);
 }
 
-setupTournament();
+setupApp();
