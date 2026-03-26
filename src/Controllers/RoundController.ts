@@ -2,6 +2,8 @@ import {Player} from "../Models/Player.ts";
 import {Round} from "../Models/Round.ts";
 import {MatchResultEnum} from "../Models/MatchResultEnum.ts";
 
+let initialize = true;
+
 export function setupRound(round: Round) {
     let drawIsDraw = false;
 
@@ -13,14 +15,17 @@ export function setupRound(round: Round) {
     let mainTableBody = mainTable.find('tbody');
     let roundRetreatTableBody = $('#roundRetreatTable').find('tbody');
 
-    setDrawButton.on('click', function () {
-        drawIsDraw = true;
-        renderSwapDraw()
-    });
-    setDoubleKoButton.on('click', function () {
-        drawIsDraw = false;
-        renderSwapDraw();
-    });
+    if (initialize) {
+        setDrawButton.on('click', function () {
+            drawIsDraw = true;
+            renderSwapDraw()
+        });
+        setDoubleKoButton.on('click', function () {
+            drawIsDraw = false;
+            renderSwapDraw();
+        });
+        initialize = false;
+    }
 
     function render() {
         renderTable();
@@ -59,7 +64,7 @@ export function setupRound(round: Round) {
     }
 
     function setButtonsEvents() {
-        $('.btn-draw').on('click', function (e) {
+        mainTableBody.find('.btn-draw').on('click', function (e) {
             let matchIndex = Number.parseInt($(e.target).attr('data-related') ?? "X");
             let match = round.matches[matchIndex];
             if (!!match) {
@@ -70,7 +75,7 @@ export function setupRound(round: Round) {
             render();
         });
 
-        $('.btn-double-ko').on('click', function (e) {
+        mainTableBody.find('.btn-double-ko').on('click', function (e) {
             let matchIndex = Number.parseInt($(e.target).attr('data-related') ?? "X");
             let match = round.matches[matchIndex];
             if (!!match) {
@@ -81,7 +86,7 @@ export function setupRound(round: Round) {
             render();
         });
 
-        $('.btn-win').on('click', function (e) {
+        mainTableBody.find('.btn-win').on('click', function (e) {
             let button = $(e.target);
             let playerId = button.attr('data-related') ?? "X";
             let matchIndex = Number.parseInt(button.attr('data-related-match') ?? "X");
@@ -98,7 +103,7 @@ export function setupRound(round: Round) {
             render();
         });
 
-        $('.btn-retreat').on('click', function (e) {
+        mainTableBody.find('.btn-retreat').on('click', function (e) {
             let button = $(e.target);
             let playerId = button.attr('data-related') ?? "X";
             let matchIndex = Number.parseInt(button.attr('data-related-match') ?? "X");
@@ -128,7 +133,7 @@ export function setupRound(round: Round) {
 
     function renderRetreats() {
         roundRetreatTableBody.html('')
-        for (let i = 0; i < round.retreats.length; i++){
+        for (let i = 0; i < round.retreats.length; i++) {
             let retreat = round.retreats[i];
             let row = `
             <tr>
@@ -142,7 +147,7 @@ export function setupRound(round: Round) {
             `
             roundRetreatTableBody.append(row);
         }
-        
+
         $('.btn-cancel-retreat').on('click', function (e) {
             let playerIndex = Number.parseInt($(e.target).attr('data-related') ?? "X");
             round.retreats.splice(playerIndex, 1);
