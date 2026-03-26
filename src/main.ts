@@ -6,31 +6,46 @@ import {Tournament} from "./Models/Tournament.ts";
 
 export function setupApp() {
     let playerSection = $('#playerSection');
-    let headingOne = $('#headingOne');
     let roundSection = $('#roundSection');
 
+    let headingOne = $('#headingOne');
     let startTournament = $('#startTournament');
-    let roundCountDisplay = $('#roundCountDisplay');
 
     startTournament.on('click', () => {
-        let players = PlayerStorage.GetPlayers();
-        let tournament = new Tournament(players);
-        let round = tournament.getNextRound();
-
         startTournament.hide();
-        roundCountDisplay.show();
-        roundCountDisplay.html(`Ronda 1/${Tools.getRequiredRounds(players.length)}`);
 
         // "Start" is in the collapse section, it will be opened.
         headingOne.trigger('click');
         roundSection.show();
-        setupRound(round);
+
+        setupTournament();
     });
 
     playerSection.show();
-    roundSection.hide();
 
     setupPlayersController();
 }
 
 setupApp();
+
+function setupTournament() {
+    let players = PlayerStorage.GetPlayers();
+    let tournament = new Tournament(players);
+    let roundCount = 1;
+
+    let roundCountDisplay = $('#roundCountDisplay');
+
+
+    let rerollRound = $('#rerollRound');
+
+    rerollRound.on('click', newRound);
+
+    function newRound() {
+        let round = tournament.getNextRound();
+        roundCountDisplay.html(`Ronda ${roundCount}/${Tools.getRequiredRounds(players.length)}`);
+
+        setupRound(round);
+    }
+    
+    newRound();
+}
