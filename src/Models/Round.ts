@@ -1,5 +1,6 @@
 import {Match} from "./Match.ts";
 import {Player} from "./Player.ts";
+import {MatchResultEnum} from "./MatchResultEnum.ts";
 
 export class Round {
     matches: Match[];
@@ -18,5 +19,16 @@ export class Round {
             }
         }
         return response;
+    }
+
+    isCompleted(): boolean {
+        let results = this.matches.flatMap(m => m.results);
+        for (let result of results) {
+            if (result.result === MatchResultEnum.None) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 }

@@ -4,6 +4,7 @@ import {PlayerHistory} from "./PlayerHistory.ts";
 import {Tools} from "../Tools.ts";
 import {Match} from "./Match.ts";
 import {MatchResultEnum} from "./MatchResultEnum.ts";
+import {MatchResult} from "./MatchResult.ts";
 
 export class Tournament {
     allPlayerHistories: PlayerHistory[] = [];
@@ -111,5 +112,24 @@ export class Tournament {
         }
 
         return playersTree;
+    }
+    
+    digestRound(round: Round) {
+        for (let match of round.matches) {
+            for (let result of match.results) {
+                let playerHistory = this.allPlayerHistories
+                    .filter(ph => ph.player.id === result.player.id)[0];
+                if (!playerHistory) {
+                    continue; // Bye
+                }
+
+                let rivals = match.results
+                    .filter(mr => mr.player.id !== result.player.id)
+                    .map<MatchResult>(mr => ({player: mr.player, result: result.result}));
+                playerHistory.matchResults.push(...rivals);
+            }
+        }
+
+        this.retreats.push(...round.retreats);
     }
 }

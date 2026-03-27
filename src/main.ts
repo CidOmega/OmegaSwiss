@@ -4,8 +4,6 @@ import {Tools} from "./Tools.ts";
 import {PlayerStorage} from "./Storage/PlayerStorage.ts";
 import {Tournament} from "./Models/Tournament.ts";
 import {Round} from "./Models/Round.ts";
-import {MatchResultEnum} from "./Models/MatchResultEnum.ts";
-import {MatchResult} from "./Models/MatchResult.ts";
 
 export function setupApp() {
     let playerSection = $('#playerSection');
@@ -53,30 +51,12 @@ function setupTournament() {
     }
 
     endRound.on('click', () => {
-        let results = activeRound.matches.flatMap(m => m.results);
-        for (let result of results) {
-            if (result.result === MatchResultEnum.None) {
-                incompleteRoundModal.modal('show')
-                return;
-            }
+        if (!activeRound.isCompleted()) {
+            incompleteRoundModal.modal('show')
+            return;
         }
 
-        for (let match of activeRound.matches) {
-            for (let result of match.results) {
-                let playerHistory = tournament.allPlayerHistories
-                    .filter(ph => ph.player.id === result.player.id)[0];
-                if (!playerHistory) {
-                    continue; // Bye
-                }
-
-                let rivals = match.results
-                    .filter(mr => mr.player.id !== result.player.id)
-                    .map<MatchResult>(mr => ({player: mr.player, result: result.result}));
-                playerHistory.matchResults.push(...rivals);
-            }
-        }
-
-        tournament.retreats.push(...activeRound.retreats);
+        tournament.digestRound(activeRound);
 
         roundCount++;
 
