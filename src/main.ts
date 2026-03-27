@@ -41,6 +41,7 @@ function setupTournament() {
 
     let rerollRound = $('#rerollRound');
     let endRound = $('#endRound');
+    let incompleteRoundModal = $('#incompleteRoundModal');
 
     rerollRound.on('click', newRound);
 
@@ -55,7 +56,7 @@ function setupTournament() {
         let results = activeRound.matches.flatMap(m => m.results);
         for (let result of results) {
             if (result.result === MatchResultEnum.None) {
-                $('#exampleModal').modal('show')
+                incompleteRoundModal.modal('show')
                 return;
             }
         }
@@ -76,7 +77,7 @@ function setupTournament() {
         }
 
         tournament.retreats.push(...activeRound.retreats);
-        
+
         roundCount++;
 
         newRound();
