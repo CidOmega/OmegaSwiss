@@ -5,13 +5,15 @@ import {Tools} from "../Tools.ts";
 import {Match} from "./Match.ts";
 import {MatchResultEnum} from "./MatchResultEnum.ts";
 import {MatchResult} from "./MatchResult.ts";
+import {PlayerWithAvailableRivals} from "./PlayerWithAvailableRivals.ts";
+import {PlayerStatistics} from "./PlayerStatistics.ts";
 
 export class Tournament {
     allPlayerHistories: PlayerHistory[] = [];
     retreats: Player[] = [];
     // rounds: Round[] = [];
 
-    bye: Player = {id: 'X', name: 'Bye'};
+    bye: Player = {id: 'X', name: 'Bye', statistics: new PlayerStatistics(0, 0, 0)};
 
     constructor(players: Player[]) {
         for (let player of players) {
@@ -37,47 +39,112 @@ export class Tournament {
     }
 
     getNextRound(): Round {
-        let players = this.getNextRoundPlayersWithRivals();
+        let playersWithAvailableRivals = this.getNextRoundPlayersWithRivals();
 
-        if (players.length % 2 === 1) {
-            players.push(this.getByeWithRivals());
+        if (playersWithAvailableRivals.length % 2 === 1) {
+            playersWithAvailableRivals.push(this.getByeWithRivals());
         }
 
         let matches: Match[] = []
+        let cannotFindRival: PlayerWithAvailableRivals[] = [];
 
-        let playerPointer = players.shift();
+        let playerPointer = playersWithAvailableRivals.shift();
         while (!!playerPointer) {
-            let availableRivals = players
+            let availableRivals = playersWithAvailableRivals
                 .filter(t => t.availableRivals.indexOf(playerPointer!.player) !== -1);
+
             let iAmTheOnlyRival = availableRivals
                 .filter(t => t.availableRivals.length === 1)
                 .shift();
-            let rival = iAmTheOnlyRival ?? availableRivals.shift()!;
+
+            let rival: PlayerWithAvailableRivals | undefined = undefined;
+            if (iAmTheOnlyRival) {
+                rival = iAmTheOnlyRival;
+            } else {
+                let rivalPointer = availableRivals.shift();
+                while (rivalPointer) {
+                    let playersToRelate = [playerPointer.player, rivalPointer.player];
+                    let someoneLosesAllRivals = availableRivals
+                        .filter(t => getRestOfRivals(t.availableRivals, playersToRelate).length === 0)
+                        .length !== 0;
+                    if (!someoneLosesAllRivals) {
+                        rival = rivalPointer;
+                        break;
+                    }
+
+                    rivalPointer = availableRivals.shift();
+                }
+            }
+
+            if (!rival) {
+                cannotFindRival.push(playerPointer);
+            } else {
+                matches.push({
+                    results: [
+                        {player: playerPointer.player, result: MatchResultEnum.None},
+                        {player: rival.player, result: MatchResultEnum.None},
+                    ]
+                });
+
+                // TODO estos dos jugadores han dejado de estar disponibles,
+                //  asi que "availableRivals" de los jugadores restantes hay que actualizarlo
+                //  para que si a alguien le quedan 2 el 2º lo pesque.
+                //  ¿Que pasa si alguien tiene 2 disponibles y se emparejan entre ellos?
+
+                Tools.deleteFromArray(playersWithAvailableRivals, rival);
+
+                // playerPointer and rival is not available for the rest of the pairing
+                for (let playerWithRivals of playersWithAvailableRivals) {
+                    playerWithRivals.availableRivals = getRestOfRivals(playerWithRivals.availableRivals, [playerPointer.player, rival.player]);
+                }
+            }
+
+            playerPointer = playersWithAvailableRivals.shift();
+        }
+
+        cannotFindRival = cannotFindRival
+            .sort((a, b) => comparePlayers(a.player, b.player))
+            .reverse();
+        for (let i = 0; i < cannotFindRival.length; i += 2) {
+            let noRivalA = cannotFindRival[i];
+            let noRivalB = cannotFindRival[i + 1];
 
             matches.push({
                 results: [
-                    {player: playerPointer.player, result: MatchResultEnum.None},
-                    {player: rival.player, result: MatchResultEnum.None},
+                    {player: noRivalA.player, result: MatchResultEnum.None},
+                    {player: noRivalB.player, result: MatchResultEnum.None},
                 ]
-            });
-
-            // TODO estos dos jugadores han dejado de estar disponibles,
-            //  asi que "availableRivals" de los jugadores restantes hay que actualizarlo
-            //  para que si a alguien le quedan 2 el 2º lo pesque.
-            //  ¿Que pasa si alguien tiene 2 disponibles y se emparejan entre ellos?
-            
-            Tools.deleteFromArray(players, rival);
-            playerPointer = players.shift();
+            })
         }
 
+        matches = matches
+            .sort((a, b) => {
+                let compare = comparePlayers(a.results[0].player, b.results[0].player);
+                if (compare === 0) compare = comparePlayers(a.results[1].player, b.results[1].player);
+                return compare;
+            })
+            .reverse();
+
         return new Round(matches);
+
+        function getRestOfRivals(availableRivals: Player[], playersToNotCount: Player[]): Player[] {
+            return availableRivals
+                .filter(p => playersToNotCount.indexOf(p) !== -1);
+        }
+
+        function comparePlayers(a: Player, b: Player): number {
+            if (a.id === 'X') return -1;
+            if (b.id === 'X') return +1;
+
+            return a.statistics!.getKey().localeCompare(b.statistics!.getKey());
+        }
     }
 
-    getNextRoundPlayersWithRivals(): { player: Player, availableRivals: Player[] }[] {
+    getNextRoundPlayersWithRivals(): PlayerWithAvailableRivals[] {
         let activePlayers = this.getActivePlayers().map((ph) => ph.player);
         let playersTree = this.getNextRoundPlayersTree();
         let treeKeys = Object.keys(playersTree).sort().reverse();
-        let players: { player: Player, availableRivals: Player[] }[] = [];
+        let players: PlayerWithAvailableRivals[] = [];
         for (let key of treeKeys) {
             let playerHistories = playersTree[key];
             Tools.shuffle(playerHistories);
@@ -113,7 +180,7 @@ export class Tournament {
 
         return playersTree;
     }
-    
+
     digestRound(round: Round) {
         for (let match of round.matches) {
             for (let result of match.results) {
