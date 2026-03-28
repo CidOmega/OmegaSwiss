@@ -3,13 +3,11 @@ import {Round} from "../Models/Round.ts";
 import {MatchResultEnum} from "../Models/MatchResultEnum.ts";
 
 let initialize = true;
+let drawIsDraw = false;
 
 export function setupRound(round: Round) {
-    let drawIsDraw = false;
-
-    let swapDrawContainer = $('#swapDrawContainer');
-    let setDrawButton = swapDrawContainer.find('.btn-draw')
-    let setDoubleKoButton = swapDrawContainer.find('.btn-double-ko')
+    let setDrawButton = $('#swapDrawDraw');
+    let setDoubleKoButton = $('#swapDrawDoubleKo');
 
     let mainTable = $('#mainTable');
     let mainTableBody = mainTable.find('tbody');
