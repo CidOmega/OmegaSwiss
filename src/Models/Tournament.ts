@@ -9,6 +9,7 @@ import {PlayerWithAvailableRivals} from "./PlayerWithAvailableRivals.ts";
 import {PlayerStatistics} from "./PlayerStatistics.ts";
 
 export class Tournament {
+    closed: boolean = false;
     roundCount: number = 1;
     roundTotal: number;
     allPlayerHistories: PlayerHistory[] = [];

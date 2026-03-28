@@ -32,6 +32,10 @@ export function setupApp() {
     playerSection.show();
 
     setupPlayersController();
+    if(!TournamentStorage.getTournament().closed) {
+        // TODO do properly
+        continueTournamentButton.trigger('click');
+    }
 }
 
 setupApp();
