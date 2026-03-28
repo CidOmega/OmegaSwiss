@@ -46,7 +46,7 @@ export class Tournament {
         }
 
         let matches: Match[] = []
-        let cannotFindRival: PlayerWithAvailableRivals[] = [];
+        let cannotFindRival: Player[] = [];
 
         let playerPointer = playersWithAvailableRivals.shift();
         while (!!playerPointer) {
@@ -77,14 +77,9 @@ export class Tournament {
             }
 
             if (!rival) {
-                cannotFindRival.push(playerPointer);
+                cannotFindRival.push(playerPointer.player);
             } else {
-                matches.push({
-                    results: [
-                        {player: playerPointer.player, result: MatchResultEnum.None},
-                        {player: rival.player, result: MatchResultEnum.None},
-                    ]
-                });
+                matches.push(getNewMatch(playerPointer.player, rival.player))
 
                 // TODO estos dos jugadores han dejado de estar disponibles,
                 //  asi que "availableRivals" de los jugadores restantes hay que actualizarlo
@@ -102,41 +97,56 @@ export class Tournament {
             playerPointer = playersWithAvailableRivals.shift();
         }
 
-        cannotFindRival = cannotFindRival
-            .sort((a, b) => comparePlayers(a.player, b.player))
-            .reverse();
+        cannotFindRival = cannotFindRival.sort((a, b) => comparePlayers(a, b));
         for (let i = 0; i < cannotFindRival.length; i += 2) {
             let noRivalA = cannotFindRival[i];
             let noRivalB = cannotFindRival[i + 1];
 
-            matches.push({
-                results: [
-                    {player: noRivalA.player, result: MatchResultEnum.None},
-                    {player: noRivalB.player, result: MatchResultEnum.None},
-                ]
-            })
+            matches.push(getNewMatch(noRivalA, noRivalB));
         }
 
         matches = matches
             .sort((a, b) => {
-                let compare = comparePlayers(a.results[0].player, b.results[0].player);
-                if (compare === 0) compare = comparePlayers(a.results[1].player, b.results[1].player);
+                // playerA without name 
+                let compare = comparePlayers(a.results[0].player, b.results[0].player, false);
+                // playerB without name
+                if (compare === 0) compare = comparePlayers(a.results[1].player, b.results[1].player, false);
+                // playerA with name
+                if (compare === 0) compare = comparePlayers(a.results[0].player, b.results[0].player, true);
+                // playerB with name
+                if (compare === 0) compare = comparePlayers(a.results[1].player, b.results[1].player, true);
                 return compare;
-            })
-            .reverse();
+            });
 
         return new Round(matches);
+
+        function getNewMatch(a: Player, b: Player): Match {
+            let players = [a, b].sort(comparePlayers);
+
+            return {
+                results: [
+                    {player: players[0], result: MatchResultEnum.None},
+                    {player: players[1], result: MatchResultEnum.None},
+                ]
+            }
+        }
 
         function getRestOfRivals(availableRivals: Player[], playersToNotCount: Player[]): Player[] {
             return availableRivals
                 .filter(p => playersToNotCount.indexOf(p) !== -1);
         }
 
-        function comparePlayers(a: Player, b: Player): number {
-            if (a.id === 'X') return -1;
-            if (b.id === 'X') return +1;
+        function comparePlayers(a: Player, b: Player, compareName: boolean = true): number {
+            // Bye always last.
+            if (a.id === 'X') return +1;
+            if (b.id === 'X') return -1;
 
-            return a.statistics.getKey().localeCompare(b.statistics.getKey());
+            // Order by key first (reversed for ORCER DESC)
+            let compare = b.statistics.getKey().localeCompare(a.statistics.getKey());
+            // Name then (correctly sorted).
+            if (compareName && compare === 0) compare = a.name.localeCompare(b.name);
+
+            return compare;
         }
     }
 
