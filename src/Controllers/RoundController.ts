@@ -3,13 +3,11 @@ import {Round} from "../Models/Round.ts";
 import {MatchResultEnum} from "../Models/MatchResultEnum.ts";
 
 let initialize = true;
+let drawIsDraw = false;
 
 export function setupRound(round: Round) {
-    let drawIsDraw = false;
-
-    let swapDrawContainer = $('#swapDrawContainer');
-    let setDrawButton = swapDrawContainer.find('.btn-draw')
-    let setDoubleKoButton = swapDrawContainer.find('.btn-double-ko')
+    let setDrawButton = $('#swapDrawDraw');
+    let setDoubleKoButton = $('#swapDrawDoubleKo');
 
     let mainTable = $('#mainTable');
     let mainTableBody = mainTable.find('tbody');
@@ -161,7 +159,7 @@ export function setupRound(round: Round) {
     <th scope="row" class="text-center">${matchIndex + 1}</th>
     <td data-related="${player1.id}" class="player-cell">
         <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-retreat btn btn-secondary">Retirada</button>
-        ${player1.name}
+        ${player1.name} ${player1.statistics.getKda()}
         <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>
     <td>
@@ -170,7 +168,7 @@ export function setupRound(round: Round) {
     </td>
     <td data-related="${player2.id}" class="player-cell">
         <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-retreat btn btn-secondary">Retirada</button>
-        ${player2.name}
+        ${player2.name} ${player2.statistics.getKda()}
         <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>
     </tr>

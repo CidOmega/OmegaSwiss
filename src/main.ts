@@ -3,6 +3,7 @@ import {setupRound} from "./Controllers/RoundController.ts";
 import {Tools} from "./Tools.ts";
 import {PlayerStorage} from "./Storage/PlayerStorage.ts";
 import {Tournament} from "./Models/Tournament.ts";
+import {Round} from "./Models/Round.ts";
 
 export function setupApp() {
     let playerSection = $('#playerSection');
@@ -32,20 +33,35 @@ function setupTournament() {
     let players = PlayerStorage.GetPlayers();
     let tournament = new Tournament(players);
     let roundCount = 1;
+    let activeRound: Round;
 
     let roundCountDisplay = $('#roundCountDisplay');
 
-
     let rerollRound = $('#rerollRound');
+    let endRound = $('#endRound');
+    let incompleteRoundModal = $('#incompleteRoundModal');
 
     rerollRound.on('click', newRound);
 
     function newRound() {
-        let round = tournament.getNextRound();
+        activeRound = tournament.getNextRound();
         roundCountDisplay.html(`Ronda ${roundCount}/${Tools.getRequiredRounds(players.length)}`);
 
-        setupRound(round);
+        setupRound(activeRound);
     }
-    
+
+    endRound.on('click', () => {
+        if (!activeRound.isCompleted()) {
+            incompleteRoundModal.modal('show')
+            return;
+        }
+
+        tournament.digestRound(activeRound);
+
+        roundCount++;
+
+        newRound();
+    });
+
     newRound();
 }
