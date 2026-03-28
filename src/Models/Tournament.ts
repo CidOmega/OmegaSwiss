@@ -97,7 +97,7 @@ export class Tournament {
             playerPointer = playersWithAvailableRivals.shift();
         }
 
-        cannotFindRival = cannotFindRival.sort((a, b) => comparePlayers(a, b));
+        cannotFindRival = cannotFindRival.sort((a, b) => Tools.comparePlayers(a, b));
         for (let i = 0; i < cannotFindRival.length; i += 2) {
             let noRivalA = cannotFindRival[i];
             let noRivalB = cannotFindRival[i + 1];
@@ -105,23 +105,10 @@ export class Tournament {
             matches.push(getNewMatch(noRivalA, noRivalB));
         }
 
-        matches = matches
-            .sort((a, b) => {
-                // playerA without name 
-                let compare = comparePlayers(a.results[0].player, b.results[0].player, false);
-                // playerB without name
-                if (compare === 0) compare = comparePlayers(a.results[1].player, b.results[1].player, false);
-                // playerA with name
-                if (compare === 0) compare = comparePlayers(a.results[0].player, b.results[0].player, true);
-                // playerB with name
-                if (compare === 0) compare = comparePlayers(a.results[1].player, b.results[1].player, true);
-                return compare;
-            });
-
         return new Round(matches);
 
         function getNewMatch(a: Player, b: Player): Match {
-            let players = [a, b].sort(comparePlayers);
+            let players = [a, b].sort(Tools.comparePlayers);
 
             return {
                 results: [
@@ -134,19 +121,6 @@ export class Tournament {
         function getRestOfRivals(availableRivals: Player[], playersToNotCount: Player[]): Player[] {
             return availableRivals
                 .filter(p => playersToNotCount.indexOf(p) === -1);
-        }
-
-        function comparePlayers(a: Player, b: Player, compareName: boolean = true): number {
-            // Bye always last.
-            if (a.id === 'X') return +1;
-            if (b.id === 'X') return -1;
-
-            // Order by key first (reversed for ORCER DESC)
-            let compare = b.statistics.getKey().localeCompare(a.statistics.getKey());
-            // Name then (correctly sorted).
-            if (compareName && compare === 0) compare = a.name.localeCompare(b.name);
-
-            return compare;
         }
     }
 

@@ -1,6 +1,20 @@
+import {Player} from "./Models/Player.ts";
+
 export const Tools = {
     getRequiredRounds(playersLength: number) {
         return playersLength == 0 ? 0 : Math.ceil(Math.log2(playersLength));
+    },
+    comparePlayers(a: Player, b: Player, compareName: boolean = true): number {
+        // Bye always last.
+        if (a.id === 'X') return +1;
+        if (b.id === 'X') return -1;
+
+        // Order by key first (reversed for ORCER DESC)
+        let compare = b.statistics.getKey().localeCompare(a.statistics.getKey());
+        // Name then (correctly sorted).
+        if (compareName && compare === 0) compare = a.name.localeCompare(b.name);
+
+        return compare;
     },
     shuffle<T>(array: T[]) {
         let currentIndex = array.length;
