@@ -136,7 +136,7 @@ export class Tournament {
             if (a.id === 'X') return -1;
             if (b.id === 'X') return +1;
 
-            return a.statistics!.getKey().localeCompare(b.statistics!.getKey());
+            return a.statistics.getKey().localeCompare(b.statistics.getKey());
         }
     }
 

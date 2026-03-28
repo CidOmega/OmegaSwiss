@@ -161,7 +161,7 @@ export function setupRound(round: Round) {
     <th scope="row" class="text-center">${matchIndex + 1}</th>
     <td data-related="${player1.id}" class="player-cell">
         <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-retreat btn btn-secondary">Retirada</button>
-        ${player1.name} ${player1.statistics?.getKda() ?? ''}
+        ${player1.name} ${player1.statistics.getKda()}
         <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>
     <td>
@@ -170,7 +170,7 @@ export function setupRound(round: Round) {
     </td>
     <td data-related="${player2.id}" class="player-cell">
         <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-retreat btn btn-secondary">Retirada</button>
-        ${player2.name} ${player2.statistics?.getKda() ?? ''}
+        ${player2.name} ${player2.statistics.getKda()}
         <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>
     </tr>
