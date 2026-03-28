@@ -1,52 +1,67 @@
 import {setupPlayersController} from "./Controllers/PlayersController.ts";
 import {setupRound} from "./Controllers/RoundController.ts";
-import {Round} from "./Models/Round.ts";
-import {MatchResultEnum} from "./Models/MatchResultEnum.ts";
 import {Tools} from "./Tools.ts";
-import {Match} from "./Models/Match.ts";
 import {PlayerStorage} from "./Storage/PlayerStorage.ts";
+import {Tournament} from "./Models/Tournament.ts";
+import {Round} from "./Models/Round.ts";
 
 export function setupApp() {
     let playerSection = $('#playerSection');
-    let headingOne = $('#headingOne');
     let roundSection = $('#roundSection');
 
+    let headingOne = $('#headingOne');
     let startTournament = $('#startTournament');
-    let roundCountDisplay = $('#roundCountDisplay');
 
-    startTournament.show();
-    roundCountDisplay.hide();
     startTournament.on('click', () => {
-        let players = PlayerStorage.GetPlayers();
-        if (players.length % 2 == 1) {
-            players.push({id: 'X', name: 'Bye'});
-        }
-
         startTournament.hide();
-        roundCountDisplay.show();
-        roundCountDisplay.html(`Ronda 1/${Tools.getRequiredRounds(players.length)}`);
-
-        let matches: Match[] = [];
-        for (let i = 0; i < players.length / 2; i++) {
-            let index = i * 2;
-            matches.push({
-                results: [
-                    {result: MatchResultEnum.None, player: players[index]},
-                    {result: MatchResultEnum.None, player: players[index + 1]},
-                ],
-            })
-        }
 
         // "Start" is in the collapse section, it will be opened.
         headingOne.trigger('click');
         roundSection.show();
-        setupRound(new Round(matches));
+
+        setupTournament();
     });
 
     playerSection.show();
-    roundSection.hide();
 
     setupPlayersController();
 }
 
 setupApp();
+
+function setupTournament() {
+    let players = PlayerStorage.GetPlayers();
+    let tournament = new Tournament(players);
+    let roundCount = 1;
+    let activeRound: Round;
+
+    let roundCountDisplay = $('#roundCountDisplay');
+
+    let rerollRound = $('#rerollRound');
+    let endRound = $('#endRound');
+    let incompleteRoundModal = $('#incompleteRoundModal');
+
+    rerollRound.on('click', newRound);
+
+    function newRound() {
+        activeRound = tournament.getNextRound();
+        roundCountDisplay.html(`Ronda ${roundCount}/${Tools.getRequiredRounds(players.length)}`);
+
+        setupRound(activeRound);
+    }
+
+    endRound.on('click', () => {
+        if (!activeRound.isCompleted()) {
+            incompleteRoundModal.modal('show')
+            return;
+        }
+
+        tournament.digestRound(activeRound);
+
+        roundCount++;
+
+        newRound();
+    });
+
+    newRound();
+}

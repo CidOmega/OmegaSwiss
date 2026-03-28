@@ -92,10 +92,16 @@
     <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-bs-parent="#accordion">
         <div class="card-body">
             <div class="row m-1">
-                <div class="col-6 text-start">
-                    <h5 id="roundCountDisplay" style="display: none">Ronda X/Y</h5>
+                <div class="col-2 text-start">
+                    <h5 id="roundCountDisplay">Ronda X/Y</h5>
                 </div>
-                <div id="swapDrawContainer" class="col-6 text-end">
+                <div class="col-2 text-start">
+                    <button id="endRound" type="button" class="btn btn-info text-nowrap">Terminar ronda</button>
+                </div>
+                <div class="col-2 text-start">
+                    <button id="rerollRound" type="button" class="btn btn-primary text-nowrap">Reroll</button>
+                </div>
+                <div class="col-6 text-end">
                     <div class="row">
                         <div class="col-12 col-lg-10">
                             <div class="row">
@@ -103,11 +109,11 @@
                             </div>
                         </div>
                         <div class="col-12 col-lg-2">
-                            <button type="button" class="btn-draw btn btn-warning text-nowrap"
+                            <button id="swapDrawDraw" type="button" class="btn btn-warning text-nowrap"
                                     style="display: none">
                                 Empate
                             </button>
-                            <button type="button" class="btn-double-ko btn btn-danger text-nowrap"
+                            <button id="swapDrawDoubleKo" type="button" class="btn btn-danger text-nowrap"
                                     style="display: none">
                                 Doble KO
                             </button>
@@ -137,6 +143,23 @@
                     </thead>
                     <tbody class="table-group-divider"></tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="incompleteRoundModal" tabindex="-1" role="dialog"
+     aria-labelledby="incompleteRoundModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="incompleteRoundModalLabel">Ronda incompleta</h5>
+            </div>
+            <div class="modal-body">
+                No todos los enfrentamientos tienen resultado, no se puede cerrar la ronda.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
