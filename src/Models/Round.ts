@@ -10,6 +10,12 @@ export class Round {
     constructor(matches: Match[]) {
         this.matches = matches
             .sort((a, b) => {
+                // Bye always last
+                if (Tools.containsBye(a.results.map(r => r.player)))
+                    return +1;
+                if (Tools.containsBye(b.results.map(r => r.player)))
+                    return -1;
+
                 // playerA without name 
                 let compare = Tools.comparePlayers(a.results[0].player, b.results[0].player, false);
                 // playerB without name
@@ -40,7 +46,7 @@ export class Round {
                 return false;
             }
         }
-        
+
         return true;
     }
 }

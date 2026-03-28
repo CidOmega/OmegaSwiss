@@ -13,7 +13,7 @@ export class Tournament {
     retreats: Player[] = [];
     // rounds: Round[] = [];
 
-    bye: Player = {id: 'X', name: 'Bye', statistics: new PlayerStatistics(0, 0, 0)};
+    bye: Player = {id: Tools.byeId, name: 'Bye', statistics: new PlayerStatistics(0, 0, 0)};
 
     constructor(players: Player[]) {
         for (let player of players) {
