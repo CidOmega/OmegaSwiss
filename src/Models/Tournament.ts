@@ -133,7 +133,7 @@ export class Tournament {
 
         function getRestOfRivals(availableRivals: Player[], playersToNotCount: Player[]): Player[] {
             return availableRivals
-                .filter(p => playersToNotCount.indexOf(p) !== -1);
+                .filter(p => playersToNotCount.indexOf(p) === -1);
         }
 
         function comparePlayers(a: Player, b: Player, compareName: boolean = true): number {
