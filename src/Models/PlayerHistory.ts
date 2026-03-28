@@ -11,8 +11,10 @@ export class PlayerHistory {
         this.player = player;
     }
 
-    addResult(result: MatchResultEnum, playerVs: Player): void {
-        this.matchResults.push({player: playerVs, result: result});
+    static copy(other: PlayerHistory): PlayerHistory {
+        let response = new PlayerHistory(other.player);
+        response.matchResults = other.matchResults;
+        return response;
     }
 
     getStatistics(): PlayerStatistics {
