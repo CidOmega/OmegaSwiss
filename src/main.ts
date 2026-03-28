@@ -1,39 +1,60 @@
 import {setupPlayersController} from "./Controllers/PlayersController.ts";
 import {setupRound} from "./Controllers/RoundController.ts";
-import {Tools} from "./Tools.ts";
 import {PlayerStorage} from "./Storage/PlayerStorage.ts";
 import {Tournament} from "./Models/Tournament.ts";
 import {Round} from "./Models/Round.ts";
+import {TournamentStorage} from "./Storage/TournamentStorage.ts";
 
 export function setupApp() {
     let playerSection = $('#playerSection');
     let roundSection = $('#roundSection');
 
     let headingOne = $('#headingOne');
-    let startTournament = $('#startTournament');
+    let startTournamentButton = $('#startTournament');
+    let continueTournamentButton = $('#continueTournament');
 
-    startTournament.on('click', () => {
-        startTournament.hide();
-
+    startTournamentButton.on('click', () => {
         // "Start" is in the collapse section, it will be opened.
         headingOne.trigger('click');
         roundSection.show();
 
-        setupTournament();
+        startTournament();
+    });
+
+    continueTournamentButton.on('click', () => {
+        // "Continue" is in the collapse section, it will be opened.
+        headingOne.trigger('click');
+        roundSection.show();
+
+        continueTournament();
     });
 
     playerSection.show();
 
     setupPlayersController();
+    if(!TournamentStorage.getTournament().closed) {
+        // TODO do properly
+        continueTournamentButton.trigger('click');
+    }
 }
 
 setupApp();
 
-function setupTournament() {
+function startTournament() {
     let players = PlayerStorage.GetPlayers();
     let tournament = new Tournament(players);
-    let roundCount = 1;
-    let activeRound: Round;
+    setupTournament(tournament, tournament.getNextRound());
+}
+
+function continueTournament() {
+    let tournament = TournamentStorage.getTournament();
+    setupTournament(tournament, TournamentStorage.getRound());
+}
+
+function setupTournament(tournament: Tournament, round: Round) {
+    TournamentStorage.saveTournament(tournament);
+    let activeRound = round;
+    TournamentStorage.saveRound(activeRound);
 
     let roundCountDisplay = $('#roundCountDisplay');
 
@@ -45,7 +66,12 @@ function setupTournament() {
 
     function newRound() {
         activeRound = tournament.getNextRound();
-        roundCountDisplay.html(`Ronda ${roundCount}/${Tools.getRequiredRounds(players.length)}`);
+        TournamentStorage.saveRound(activeRound);
+        doRound();
+    }
+
+    function doRound() {
+        roundCountDisplay.html(`Ronda ${tournament.roundCount}/${tournament.roundTotal}`);
 
         setupRound(activeRound);
     }
@@ -57,11 +83,11 @@ function setupTournament() {
         }
 
         tournament.digestRound(activeRound);
-
-        roundCount++;
+        tournament.roundCount = tournament.roundCount + 1;
+        TournamentStorage.saveTournament(tournament);
 
         newRound();
     });
 
-    newRound();
+    doRound();
 }

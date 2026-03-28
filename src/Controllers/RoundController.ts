@@ -1,6 +1,8 @@
 import {Player} from "../Models/Player.ts";
 import {Round} from "../Models/Round.ts";
 import {MatchResultEnum} from "../Models/MatchResultEnum.ts";
+import {PlayerStatistics} from "../Models/PlayerStatistics.ts";
+import {TournamentStorage} from "../Storage/TournamentStorage.ts";
 
 let initialize = true;
 let drawIsDraw = false;
@@ -26,6 +28,7 @@ export function setupRound(round: Round) {
     }
 
     function render() {
+        TournamentStorage.saveRound(round);
         renderTable();
         setMatchStatus();
         setButtonsEvents();
@@ -159,7 +162,7 @@ export function setupRound(round: Round) {
     <th scope="row" class="text-center">${matchIndex + 1}</th>
     <td data-related="${player1.id}" class="player-cell">
         <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-retreat btn btn-secondary">Retirada</button>
-        ${player1.name} ${player1.statistics.getKda()}
+        ${player1.name} ${PlayerStatistics.getKda(player1.statistics)}
         <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>
     <td>
@@ -168,7 +171,7 @@ export function setupRound(round: Round) {
     </td>
     <td data-related="${player2.id}" class="player-cell">
         <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-retreat btn btn-secondary">Retirada</button>
-        ${player2.name} ${player2.statistics.getKda()}
+        ${player2.name} ${PlayerStatistics.getKda(player2.statistics)}
         <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>
     </tr>

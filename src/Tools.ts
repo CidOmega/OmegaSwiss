@@ -1,4 +1,5 @@
 import {Player} from "./Models/Player.ts";
+import {PlayerStatistics} from "./Models/PlayerStatistics.ts";
 
 export const Tools = {
     byeId: 'X',
@@ -11,7 +12,7 @@ export const Tools = {
         if (b.id === Tools.byeId) return -1;
 
         // Order by key first (reversed for ORCER DESC)
-        let compare = b.statistics.getKey().localeCompare(a.statistics.getKey());
+        let compare = PlayerStatistics.getKey(b.statistics).localeCompare(PlayerStatistics.getKey(a.statistics));
         // Name then (correctly sorted).
         if (compareName && compare === 0) compare = a.name.localeCompare(b.name);
 

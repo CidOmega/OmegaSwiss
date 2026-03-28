@@ -29,13 +29,10 @@ export class Round {
         this.retreats = [];
     }
 
-    getAllPlayers(): Player[] {
-        let response: Player[] = [];
-        for (let match of this.matches) {
-            for (let result of match.results) {
-                response.push(result.player);
-            }
-        }
+    static copy(other: Round): Round {
+        let response = new Round([]);
+        response.matches = other.matches;
+        response.retreats = other.retreats;
         return response;
     }
 

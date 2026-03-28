@@ -9,6 +9,9 @@ import {PlayerWithAvailableRivals} from "./PlayerWithAvailableRivals.ts";
 import {PlayerStatistics} from "./PlayerStatistics.ts";
 
 export class Tournament {
+    closed: boolean = false;
+    roundCount: number = 1;
+    roundTotal: number;
     allPlayerHistories: PlayerHistory[] = [];
     retreats: Player[] = [];
     // rounds: Round[] = [];
@@ -19,6 +22,18 @@ export class Tournament {
         for (let player of players) {
             this.allPlayerHistories.push(new PlayerHistory(player));
         }
+        this.roundTotal = Tools.getRequiredRounds(players.length);
+    }
+
+    static copy(other: Tournament): Tournament {
+        let response = new Tournament([]);
+
+        response.roundCount = other.roundCount;
+        response.roundTotal = other.roundTotal;
+        response.allPlayerHistories = other.allPlayerHistories.map(ph => PlayerHistory.copy(ph));
+        response.retreats = other.retreats;
+
+        return response;
     }
 
     getActivePlayers(): PlayerHistory[] {
@@ -151,7 +166,7 @@ export class Tournament {
 
         for (let playerHistory of this.getActivePlayers()) {
             let playerStatistics = playerHistory.getStatistics();
-            let key = playerStatistics.getKey();
+            let key = PlayerStatistics.getKey(playerStatistics);
 
             let treeKeys = Object.keys(playersTree);
             if (treeKeys.indexOf(key) === -1) {

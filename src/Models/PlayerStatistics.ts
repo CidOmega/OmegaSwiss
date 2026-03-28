@@ -9,14 +9,14 @@ export class PlayerStatistics {
         this.draws = draws;
     }
 
-    getKda(): string {
-        return `${this.wins}-${this.loses}-${this.draws}`;
+    static getKda(self: PlayerStatistics): string {
+        return `${self.wins}-${self.loses}-${self.draws}`;
     }
 
-    getKey(): string {
-        let winsString = this.wins.toString().padStart(3, '0');
-        let drawsString = this.draws.toString().padStart(3, '0');
-        let losesString = this.loses.toString().padStart(3, '0');
+    static getKey(self: PlayerStatistics): string {
+        let winsString = self.wins.toString().padStart(3, '0');
+        let drawsString = self.draws.toString().padStart(3, '0');
+        let losesString = self.loses.toString().padStart(3, '0');
         return `${winsString}-${drawsString}-${losesString}`
     }
 
