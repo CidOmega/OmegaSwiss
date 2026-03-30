@@ -39,7 +39,7 @@ export class Tournament {
     getActivePlayers(): PlayerHistory[] {
         let activePlayers: PlayerHistory[] = [];
         for (let playerHistory of this.allPlayerHistories) {
-            if (this.retreats.indexOf(playerHistory.player) === -1) {
+            if (!this.retreats.find(r => r.id === playerHistory.player.id)) {
                 activePlayers.push(playerHistory);
             }
         }
@@ -48,7 +48,7 @@ export class Tournament {
 
     getByeWithRivals(): { player: Player, availableRivals: Player[] } {
         let availableRivals = this.getActivePlayers()
-            .filter(ph => ph.getRivals().indexOf(this.bye) === -1)
+            .filter(ph => !ph.getRivals().find(r => r.id === Tools.byeId))
             .map(ph => ph.player);
         return {player: this.bye, availableRivals: availableRivals};
     }
@@ -66,7 +66,7 @@ export class Tournament {
         let playerPointer = playersWithAvailableRivals.shift();
         while (!!playerPointer) {
             let availableRivals = playersWithAvailableRivals
-                .filter(t => t.availableRivals.indexOf(playerPointer!.player) !== -1);
+                .filter(t => t.availableRivals.find(r => r.id === playerPointer!.player.id));
 
             let iAmTheOnlyRival = availableRivals
                 .filter(t => t.availableRivals.length === 1)
@@ -135,7 +135,7 @@ export class Tournament {
 
         function getRestOfRivals(availableRivals: Player[], playersToNotCount: Player[]): Player[] {
             return availableRivals
-                .filter(p => playersToNotCount.indexOf(p) === -1);
+                .filter(p => !playersToNotCount.find(ptnc => p.id === ptnc.id));
         }
     }
 
@@ -152,9 +152,9 @@ export class Tournament {
                 let doneRivals = playerHistory.getRivals();
                 let availableRivals = activePlayers
                     // Filter already done
-                    .filter(value => doneRivals.indexOf(value) === -1)
+                    .filter(value => !doneRivals.find(dr => dr.id === value.id))
                     // Filter myself
-                    .filter(value => playerHistory.player !== value);
+                    .filter(value => playerHistory.player.id !== value.id);
                 players.push({player: playerHistory.player, availableRivals: availableRivals});
             }
         }

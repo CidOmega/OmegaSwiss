@@ -105,14 +105,9 @@ export function setupRound() {
             let matchIndex = Number.parseInt(button.attr('data-related-match') ?? "X");
             let match = round.matches[matchIndex];
             if (!!match) {
-                for (let result of match.results) {
-                    if (result.player.id === playerId) {
-                        round.retreats.push(result.player);
-
-                        // Enforce not repeated players
-                        let set = new Set<Player>(round.retreats);
-                        round.retreats = Array.from(set.values());
-                    }
+                let playerRetreating = match.results.find(p => p.player.id === playerId);
+                if (!!playerRetreating && !round.retreats.find(r => r.id === playerId)) {
+                    round.retreats.push(playerRetreating.player);
                 }
             }
         }));
