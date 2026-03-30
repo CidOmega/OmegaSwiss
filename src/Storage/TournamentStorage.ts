@@ -1,27 +1,45 @@
 import {Tournament} from "../Models/Tournament.ts";
 import {Round} from "../Models/Round.ts";
 
+let tournamentCache: Tournament | null = null;
+let roundCache: Round | null = null;
+const keyTournament = 'tournament';
+const keyRound = 'round';
 export const TournamentStorage = {
-    keyTournament: 'tournament',
-    keyRound: 'round',
     getTournament(): Tournament {
-        let tournamentText = window.localStorage.getItem(this.keyTournament) || '{}';
-        let baseTournament: Tournament = JSON.parse(tournamentText);
-        return Tournament.copy(baseTournament);
-    },
-    saveTournament(tournament: Tournament) {
-        window.localStorage.setItem(this.keyTournament, JSON.stringify(tournament));
+        if (!tournamentCache) {
+            let tournamentText = window.localStorage.getItem(keyTournament);
+            if (!tournamentText) {
+                let t = new Tournament([]);
+                t.closed = true;
+                return t;
+            }
+            let baseTournament: Tournament = JSON.parse(tournamentText);
+            tournamentCache = Tournament.copy(baseTournament)
+        }
+        return tournamentCache;
     },
     getRound(): Round {
-        let roundText = window.localStorage.getItem(this.keyRound) || '{}';
-        let baseRound: Round = JSON.parse(roundText);
-        return Round.copy(baseRound);
+        if (!roundCache) {
+            let roundText = window.localStorage.getItem(keyRound);
+            if (!roundText) {
+                return new Round([]);
+            }
+            let baseRound: Round = JSON.parse(roundText);
+            roundCache = Round.copy(baseRound)
+        }
+        return roundCache;
     },
-    saveRound(round: Round) {
-        window.localStorage.setItem(this.keyRound, JSON.stringify(round));
+    saveTournament(tournament: Tournament | null = null) {
+        tournamentCache = tournament ?? tournamentCache;
+        window.localStorage.setItem(keyTournament, JSON.stringify(tournamentCache));
+    },
+    saveRound(round: Round | null = null) {
+        roundCache = round ?? roundCache;
+        window.localStorage.setItem(keyRound, JSON.stringify(roundCache));
     },
     deleteAll() {
-        window.localStorage.removeItem(this.keyTournament);
-        window.localStorage.removeItem(this.keyRound);
+        window.localStorage.removeItem(keyTournament);
+        window.localStorage.removeItem(keyRound);
     },
 };

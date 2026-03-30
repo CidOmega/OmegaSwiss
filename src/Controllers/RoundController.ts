@@ -7,7 +7,7 @@ import {TournamentStorage} from "../Storage/TournamentStorage.ts";
 let initialize = true;
 let drawIsDraw = false;
 
-export function setupRound(round: Round) {
+export function setupRound() {
     let setDrawButton = $('#swapDrawDraw');
     let setDoubleKoButton = $('#swapDrawDoubleKo');
 
@@ -28,15 +28,15 @@ export function setupRound(round: Round) {
     }
 
     function render() {
-        TournamentStorage.saveRound(round);
-        renderTable();
-        setMatchStatus();
+        let round = TournamentStorage.getRound();
+        renderTable(round);
+        setMatchStatus(round);
         setButtonsEvents();
         renderSwapDraw();
-        renderRetreats();
+        renderRetreats(round);
     }
 
-    function renderTable() {
+    function renderTable(round: Round) {
         mainTableBody.html('');
         for (let i = 0; i < round.matches.length; i++) {
             let match = round.matches[i];
@@ -44,7 +44,7 @@ export function setupRound(round: Round) {
         }
     }
 
-    function setMatchStatus() {
+    function setMatchStatus(round: Round) {
         for (let match of round.matches) {
             for (let result of match.results) {
                 let playerCell = $(`[data-related=${result.player.id}].player-cell`);
@@ -65,30 +65,27 @@ export function setupRound(round: Round) {
     }
 
     function setButtonsEvents() {
-        mainTableBody.find('.btn-draw').on('click', function (e) {
-            let matchIndex = Number.parseInt($(e.target).attr('data-related') ?? "X");
+        mainTableBody.find('.btn-draw').on('click', modifyRoundGenerator((button, round) => {
+            let matchIndex = Number.parseInt(button.attr('data-related') ?? "X");
             let match = round.matches[matchIndex];
             if (!!match) {
                 for (let result of match.results) {
                     result.result = MatchResultEnum.Draw;
                 }
             }
-            render();
-        });
+        }));
 
-        mainTableBody.find('.btn-double-ko').on('click', function (e) {
-            let matchIndex = Number.parseInt($(e.target).attr('data-related') ?? "X");
+        mainTableBody.find('.btn-double-ko').on('click', modifyRoundGenerator((button, round) => {
+            let matchIndex = Number.parseInt(button.attr('data-related') ?? "X");
             let match = round.matches[matchIndex];
             if (!!match) {
                 for (let result of match.results) {
                     result.result = MatchResultEnum.Lose;
                 }
             }
-            render();
-        });
+        }));
 
-        mainTableBody.find('.btn-win').on('click', function (e) {
-            let button = $(e.target);
+        mainTableBody.find('.btn-win').on('click', modifyRoundGenerator((button, round) => {
             let playerId = button.attr('data-related') ?? "X";
             let matchIndex = Number.parseInt(button.attr('data-related-match') ?? "X");
             let match = round.matches[matchIndex];
@@ -101,11 +98,9 @@ export function setupRound(round: Round) {
                     }
                 }
             }
-            render();
-        });
+        }));
 
-        mainTableBody.find('.btn-retreat').on('click', function (e) {
-            let button = $(e.target);
+        mainTableBody.find('.btn-retreat').on('click', modifyRoundGenerator((button, round) => {
             let playerId = button.attr('data-related') ?? "X";
             let matchIndex = Number.parseInt(button.attr('data-related-match') ?? "X");
             let match = round.matches[matchIndex];
@@ -120,8 +115,7 @@ export function setupRound(round: Round) {
                     }
                 }
             }
-            render();
-        });
+        }));
     }
 
     function renderSwapDraw() {
@@ -132,7 +126,7 @@ export function setupRound(round: Round) {
         mainTable.find('.btn-double-ko').toggle(!drawIsDraw);
     }
 
-    function renderRetreats() {
+    function renderRetreats(round: Round) {
         roundRetreatTableBody.html('')
         for (let i = 0; i < round.retreats.length; i++) {
             let retreat = round.retreats[i];
@@ -149,11 +143,22 @@ export function setupRound(round: Round) {
             roundRetreatTableBody.append(row);
         }
 
-        $('.btn-cancel-retreat').on('click', function (e) {
-            let playerIndex = Number.parseInt($(e.target).attr('data-related') ?? "X");
+
+        $('.btn-cancel-retreat').on('click', modifyRoundGenerator((button, round) => {
+            let playerIndex = Number.parseInt(button.attr('data-related') ?? "X");
             round.retreats.splice(playerIndex, 1);
+        }));
+    }
+
+    function modifyRoundGenerator(modifyRound: (button: JQuery<HTMLElement>, round: Round) => void)
+        : (e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) => void {
+        return (e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) => {
+            let round = TournamentStorage.getRound();
+            let button = $(e.target);
+            modifyRound(button, round);
+            TournamentStorage.saveRound();
             render();
-        })
+        };
     }
 
     function getMatchRowHtml(player1: Player, player2: Player, matchIndex: number) {
