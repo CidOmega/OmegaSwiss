@@ -9,7 +9,7 @@ export function startTournament() {
     let players = PlayerStorage.GetPlayers();
     let tournament = new Tournament(players);
     let round = tournament.getNextRound();
-    
+
     TournamentStorage.saveTournament(tournament);
     TournamentStorage.saveRound(round);
 
@@ -21,17 +21,35 @@ export function continueTournament() {
 }
 
 function setupTournament() {
-    if (!initializeUi) {
-        initializeUi = false;
-        doRound();
-        return;
-    }
 
     let roundCountDisplay = $('#roundCountDisplay');
 
     let rerollRound = $('#rerollRound');
     let endRound = $('#endRound');
     let incompleteRoundModal = $('#incompleteRoundModal');
+
+    if (initializeUi) {
+        rerollRound.on('click', newRound);
+
+        endRound.on('click', () => {
+            let activeRound = TournamentStorage.getRound();
+            if (!activeRound.isCompleted()) {
+                incompleteRoundModal.modal('show')
+                return;
+            }
+
+            let tournament = TournamentStorage.getTournament();
+            tournament.digestRound(activeRound);
+            tournament.roundCount = tournament.roundCount + 1;
+            TournamentStorage.saveTournament();
+
+            newRound();
+        });
+
+        initializeUi = false;
+    }
+
+    doRound();
 
     function newRound() {
         let tournament = TournamentStorage.getTournament();
@@ -46,23 +64,4 @@ function setupTournament() {
 
         setupRound();
     }
-
-    rerollRound.on('click', newRound);
-
-    endRound.on('click', () => {
-        let activeRound = TournamentStorage.getRound();
-        if (!activeRound.isCompleted()) {
-            incompleteRoundModal.modal('show')
-            return;
-        }
-
-        let tournament = TournamentStorage.getTournament();
-        tournament.digestRound(activeRound);
-        tournament.roundCount = tournament.roundCount + 1;
-        TournamentStorage.saveTournament();
-
-        newRound();
-    });
-
-    doRound();
 }
