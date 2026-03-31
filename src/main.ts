@@ -29,7 +29,10 @@ export function setupApp() {
     playerSection.show();
 
     setupPlayersController();
-    if(!TournamentStorage.getTournament().closed) {
+    let tournament = TournamentStorage.getTournament();
+    if (!tournament.closed && tournament.getActivePlayers().length !== 0) {
+        continueTournamentButton.show();
+
         // TODO do properly
         continueTournamentButton.trigger('click');
     }
