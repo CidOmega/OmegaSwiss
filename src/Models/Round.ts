@@ -1,5 +1,5 @@
 import {Match} from "./Match.ts";
-import {Player} from "./Player.ts";
+import {Player, PlayerWithStatisticsPair} from "./Player.ts";
 import {MatchResultEnum} from "./MatchResultEnum.ts";
 import {Tools} from "../Tools.ts";
 
@@ -7,25 +7,31 @@ export class Round {
     matches: Match[];
     retreats: Player[];
 
-    constructor(matches: Match[]) {
+    constructor(matches: PlayerWithStatisticsPair[]) {
         this.matches = matches
             .sort((a, b) => {
                 // Bye always last
-                if (Tools.containsBye(a.results.map(r => r.player)))
+                if (Tools.containsBye([a.playerA, a.playerB]))
                     return +1;
-                if (Tools.containsBye(b.results.map(r => r.player)))
+                if (Tools.containsBye([b.playerA, b.playerB]))
                     return -1;
 
                 // playerA without name 
-                let compare = Tools.comparePlayers(a.results[0].player, b.results[0].player, false);
+                let compare = Tools.comparePlayers(a.playerA, b.playerA, false);
                 // playerB without name
-                if (compare === 0) compare = Tools.comparePlayers(a.results[1].player, b.results[1].player, false);
+                if (compare === 0) compare = Tools.comparePlayers(a.playerB, b.playerB, false);
                 // playerA with name
-                if (compare === 0) compare = Tools.comparePlayers(a.results[0].player, b.results[0].player, true);
+                if (compare === 0) compare = Tools.comparePlayers(a.playerA, b.playerA, true);
                 // playerB with name
-                if (compare === 0) compare = Tools.comparePlayers(a.results[1].player, b.results[1].player, true);
+                if (compare === 0) compare = Tools.comparePlayers(a.playerB, b.playerB, true);
                 return compare;
-            });
+            })
+            .map(o => ({
+                results: [
+                    {player: o.playerA, result: MatchResultEnum.None},
+                    {player: o.playerB, result: MatchResultEnum.None},
+                ]
+            }));
         this.retreats = [];
     }
 

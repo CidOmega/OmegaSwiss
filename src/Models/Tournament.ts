@@ -1,9 +1,7 @@
-import {Player, PlayerMatchmakingInfo, PlayerWithStatistics} from "./Player.ts";
+import {Player, PlayerMatchmakingInfo, PlayerWithStatistics, PlayerWithStatisticsPair} from "./Player.ts";
 import {Round} from "./Round.ts";
 import {PlayerHistory} from "./PlayerHistory.ts";
 import {Tools} from "../Tools.ts";
-import {Match} from "./Match.ts";
-import {MatchResultEnum} from "./MatchResultEnum.ts";
 import {MatchResult} from "./MatchResult.ts";
 import {PlayerStatistics} from "./PlayerStatistics.ts";
 
@@ -59,7 +57,7 @@ export class Tournament {
             playersWithAvailableRivals.push(this.getByeWithRivals());
         }
 
-        let matches: Match[] = []
+        let matches: PlayerWithStatisticsPair[] = []
         let cannotFindRival: PlayerWithStatistics[] = [];
 
         let playerPointer = playersWithAvailableRivals.shift();
@@ -121,15 +119,10 @@ export class Tournament {
 
         return new Round(matches);
 
-        function getNewMatch(a: PlayerWithStatistics, b: PlayerWithStatistics): Match {
+        function getNewMatch(a: PlayerWithStatistics, b: PlayerWithStatistics): PlayerWithStatisticsPair {
             let players = [a, b].sort(Tools.comparePlayers);
 
-            return {
-                results: [
-                    {player: players[0], result: MatchResultEnum.None},
-                    {player: players[1], result: MatchResultEnum.None},
-                ]
-            }
+            return {playerA: players[0], playerB: players[1]}
         }
 
         function getRestOfRivals(availableRivals: Player[], playersToNotCount: Player[]): Player[] {
