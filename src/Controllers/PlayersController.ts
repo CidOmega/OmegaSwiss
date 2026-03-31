@@ -1,7 +1,6 @@
 import {Player} from "../Models/Player.ts";
 import {Tools} from "../Tools.ts";
 import {PlayerStorage} from "../Storage/PlayerStorage.ts";
-import {PlayerStatistics} from "../Models/PlayerStatistics.ts";
 
 export function setupPlayersController() {
     let playerNameInput = $('input#player-name-input');
@@ -29,7 +28,7 @@ export function setupPlayersController() {
         }
         playerNameInput.val("")
 
-        let newPlayer: Player = {id: crypto.randomUUID(), name: playerName, statistics: new PlayerStatistics(0, 0, 0)};
+        let newPlayer: Player = {id: crypto.randomUUID(), name: playerName};
         PlayerStorage.NewPlayer(newPlayer);
         updatedPlayers();
     }

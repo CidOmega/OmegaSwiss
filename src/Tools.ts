@@ -1,18 +1,17 @@
-import {Player} from "./Models/Player.ts";
-import {PlayerStatistics} from "./Models/PlayerStatistics.ts";
+import {Player, PlayerWithStatistics} from "./Models/Player.ts";
 
 export const Tools = {
     byeId: 'X',
     getRequiredRounds(playersLength: number) {
         return playersLength == 0 ? 0 : Math.ceil(Math.log2(playersLength));
     },
-    comparePlayers(a: Player, b: Player, compareName: boolean = true): number {
+    comparePlayers(a: PlayerWithStatistics, b: PlayerWithStatistics, compareName: boolean = true): number {
         // Bye always last.
         if (a.id === Tools.byeId) return +1;
         if (b.id === Tools.byeId) return -1;
 
         // Order by key first (reversed for ORCER DESC)
-        let compare = PlayerStatistics.getKey(b.statistics).localeCompare(PlayerStatistics.getKey(a.statistics));
+        let compare = b.statistics.getKey().localeCompare(a.statistics.getKey());
         // Name then (correctly sorted).
         if (compareName && compare === 0) compare = a.name.localeCompare(b.name);
 

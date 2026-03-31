@@ -1,11 +1,10 @@
-import {Player} from "./Player.ts";
+import {Player, PlayerMatchmakingInfo, PlayerWithStatistics} from "./Player.ts";
 import {Round} from "./Round.ts";
 import {PlayerHistory} from "./PlayerHistory.ts";
 import {Tools} from "../Tools.ts";
 import {Match} from "./Match.ts";
 import {MatchResultEnum} from "./MatchResultEnum.ts";
 import {MatchResult} from "./MatchResult.ts";
-import {PlayerWithAvailableRivals} from "./PlayerWithAvailableRivals.ts";
 import {PlayerStatistics} from "./PlayerStatistics.ts";
 
 export class Tournament {
@@ -16,7 +15,7 @@ export class Tournament {
     retreats: Player[] = [];
     // rounds: Round[] = [];
 
-    bye: Player = {id: Tools.byeId, name: 'Bye', statistics: new PlayerStatistics(0, 0, 0)};
+    bye: PlayerWithStatistics = {id: Tools.byeId, name: 'Bye', statistics: new PlayerStatistics(0, 0, 0)};
 
     constructor(players: Player[]) {
         for (let player of players) {
@@ -46,7 +45,7 @@ export class Tournament {
         return activePlayers;
     }
 
-    getByeWithRivals(): { player: Player, availableRivals: Player[] } {
+    getByeWithRivals(): PlayerMatchmakingInfo {
         let availableRivals = this.getActivePlayers()
             .filter(ph => !ph.getRivals().find(r => r.id === Tools.byeId))
             .map(ph => ph.player);
@@ -61,7 +60,7 @@ export class Tournament {
         }
 
         let matches: Match[] = []
-        let cannotFindRival: Player[] = [];
+        let cannotFindRival: PlayerWithStatistics[] = [];
 
         let playerPointer = playersWithAvailableRivals.shift();
         while (!!playerPointer) {
@@ -72,7 +71,7 @@ export class Tournament {
                 .filter(t => t.availableRivals.length === 1)
                 .shift();
 
-            let rival: PlayerWithAvailableRivals | undefined = undefined;
+            let rival: PlayerMatchmakingInfo | undefined = undefined;
             if (iAmTheOnlyRival) {
                 rival = iAmTheOnlyRival;
             } else {
@@ -122,7 +121,7 @@ export class Tournament {
 
         return new Round(matches);
 
-        function getNewMatch(a: Player, b: Player): Match {
+        function getNewMatch(a: PlayerWithStatistics, b: PlayerWithStatistics): Match {
             let players = [a, b].sort(Tools.comparePlayers);
 
             return {
@@ -139,11 +138,11 @@ export class Tournament {
         }
     }
 
-    getNextRoundPlayersWithRivals(): PlayerWithAvailableRivals[] {
+    getNextRoundPlayersWithRivals(): PlayerMatchmakingInfo[] {
         let activePlayers = this.getActivePlayers().map((ph) => ph.player);
         let playersTree = this.getNextRoundPlayersTree();
         let treeKeys = Object.keys(playersTree).sort().reverse();
-        let players: PlayerWithAvailableRivals[] = [];
+        let players: PlayerMatchmakingInfo[] = [];
         for (let key of treeKeys) {
             let playerHistories = playersTree[key];
             Tools.shuffle(playerHistories);
@@ -155,7 +154,10 @@ export class Tournament {
                     .filter(value => !doneRivals.find(dr => dr.id === value.id))
                     // Filter myself
                     .filter(value => playerHistory.player.id !== value.id);
-                players.push({player: playerHistory.player, availableRivals: availableRivals});
+                players.push({
+                    player: {...playerHistory.player, statistics: playerHistory.getStatistics()},
+                    availableRivals: availableRivals,
+                });
             }
         }
         return players;
@@ -166,14 +168,13 @@ export class Tournament {
 
         for (let playerHistory of this.getActivePlayers()) {
             let playerStatistics = playerHistory.getStatistics();
-            let key = PlayerStatistics.getKey(playerStatistics);
+            let key = playerStatistics.getKey();
 
             let treeKeys = Object.keys(playersTree);
             if (treeKeys.indexOf(key) === -1) {
                 playersTree[key] = [];
             }
 
-            playerHistory.player.statistics = playerStatistics;
             playersTree[key].push(playerHistory);
         }
 

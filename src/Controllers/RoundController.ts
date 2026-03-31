@@ -1,8 +1,8 @@
-import {Player} from "../Models/Player.ts";
+import {PlayerWithStatistics} from "../Models/Player.ts";
 import {Round} from "../Models/Round.ts";
 import {MatchResultEnum} from "../Models/MatchResultEnum.ts";
-import {PlayerStatistics} from "../Models/PlayerStatistics.ts";
 import {TournamentStorage} from "../Storage/TournamentStorage.ts";
+import {PlayerStatistics} from "../Models/PlayerStatistics.ts";
 
 let initialize = true;
 let drawIsDraw = false;
@@ -37,10 +37,19 @@ export function setupRound() {
     }
 
     function renderTable(round: Round) {
+        // Efficiency...
+        let playersWithStatistics: PlayerWithStatistics[] = TournamentStorage
+            .getTournament()
+            .getActivePlayers()
+            .map(ph => ({...ph.player, statistics: ph.getStatistics()}));
         mainTableBody.html('');
         for (let i = 0; i < round.matches.length; i++) {
             let match = round.matches[i];
-            mainTableBody.append(getMatchRowHtml(match.results[0].player, match.results[1].player, i));
+            let playerA = playersWithStatistics.find(p => p.id === match.results[0].player.id)
+                ?? {...match.results[0].player, statistics: new PlayerStatistics(0, 0, 0)};
+            let playerB = playersWithStatistics.find(p => p.id === match.results[1].player.id)
+                ?? {...match.results[1].player, statistics: new PlayerStatistics(0, 0, 0)};
+            mainTableBody.append(getMatchRowHtml(playerA, playerB, i));
         }
     }
 
@@ -156,13 +165,13 @@ export function setupRound() {
         };
     }
 
-    function getMatchRowHtml(player1: Player, player2: Player, matchIndex: number) {
+    function getMatchRowHtml(player1: PlayerWithStatistics, player2: PlayerWithStatistics, matchIndex: number) {
         return `
     <tr class="match-row">
     <th scope="row" class="text-center">${matchIndex + 1}</th>
     <td data-related="${player1.id}" class="player-cell">
         <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-retreat btn btn-secondary">Retirada</button>
-        ${player1.name} ${PlayerStatistics.getKda(player1.statistics)}
+        ${player1.name} ${player1.statistics.getKda()}
         <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>
     <td>
@@ -171,7 +180,7 @@ export function setupRound() {
     </td>
     <td data-related="${player2.id}" class="player-cell">
         <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-retreat btn btn-secondary">Retirada</button>
-        ${player2.name} ${PlayerStatistics.getKda(player2.statistics)}
+        ${player2.name} ${player2.statistics.getKda()}
         <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>
     </tr>
