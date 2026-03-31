@@ -1,7 +1,15 @@
 import {PlayerStatistics} from "./PlayerStatistics.ts";
 
-export type Player = {
+export interface Player {
     id: string;
     name: string;
+}
+
+export interface PlayerWithStatistics extends Player {
     statistics: PlayerStatistics;
+}
+
+export type PlayerMatchmakingInfo = {
+    player: PlayerWithStatistics,
+    availableRivals: Player[],
 }

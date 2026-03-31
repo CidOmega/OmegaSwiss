@@ -1,11 +1,13 @@
-import {Player} from "../Models/Player.ts";
+import {PlayerWithStatistics} from "../Models/Player.ts";
 import {Round} from "../Models/Round.ts";
 import {MatchResultEnum} from "../Models/MatchResultEnum.ts";
+import {TournamentStorage} from "../Storage/TournamentStorage.ts";
+import {PlayerStatistics} from "../Models/PlayerStatistics.ts";
 
 let initialize = true;
 let drawIsDraw = false;
 
-export function setupRound(round: Round) {
+export function setupRound() {
     let setDrawButton = $('#swapDrawDraw');
     let setDoubleKoButton = $('#swapDrawDoubleKo');
 
@@ -26,22 +28,32 @@ export function setupRound(round: Round) {
     }
 
     function render() {
-        renderTable();
-        setMatchStatus();
+        let round = TournamentStorage.getRound();
+        renderTable(round);
+        setMatchStatus(round);
         setButtonsEvents();
         renderSwapDraw();
-        renderRetreats();
+        renderRetreats(round);
     }
 
-    function renderTable() {
+    function renderTable(round: Round) {
+        // Efficiency...
+        let playersWithStatistics: PlayerWithStatistics[] = TournamentStorage
+            .getTournament()
+            .getActivePlayers()
+            .map(ph => ({...ph.player, statistics: ph.getStatistics()}));
         mainTableBody.html('');
         for (let i = 0; i < round.matches.length; i++) {
             let match = round.matches[i];
-            mainTableBody.append(getMatchRowHtml(match.results[0].player, match.results[1].player, i));
+            let playerA = playersWithStatistics.find(p => p.id === match.results[0].player.id)
+                ?? {...match.results[0].player, statistics: new PlayerStatistics(0, 0, 0)};
+            let playerB = playersWithStatistics.find(p => p.id === match.results[1].player.id)
+                ?? {...match.results[1].player, statistics: new PlayerStatistics(0, 0, 0)};
+            mainTableBody.append(getMatchRowHtml(playerA, playerB, i));
         }
     }
 
-    function setMatchStatus() {
+    function setMatchStatus(round: Round) {
         for (let match of round.matches) {
             for (let result of match.results) {
                 let playerCell = $(`[data-related=${result.player.id}].player-cell`);
@@ -62,30 +74,27 @@ export function setupRound(round: Round) {
     }
 
     function setButtonsEvents() {
-        mainTableBody.find('.btn-draw').on('click', function (e) {
-            let matchIndex = Number.parseInt($(e.target).attr('data-related') ?? "X");
+        mainTableBody.find('.btn-draw').on('click', modifyRoundGenerator((button, round) => {
+            let matchIndex = Number.parseInt(button.attr('data-related') ?? "X");
             let match = round.matches[matchIndex];
             if (!!match) {
                 for (let result of match.results) {
                     result.result = MatchResultEnum.Draw;
                 }
             }
-            render();
-        });
+        }));
 
-        mainTableBody.find('.btn-double-ko').on('click', function (e) {
-            let matchIndex = Number.parseInt($(e.target).attr('data-related') ?? "X");
+        mainTableBody.find('.btn-double-ko').on('click', modifyRoundGenerator((button, round) => {
+            let matchIndex = Number.parseInt(button.attr('data-related') ?? "X");
             let match = round.matches[matchIndex];
             if (!!match) {
                 for (let result of match.results) {
                     result.result = MatchResultEnum.Lose;
                 }
             }
-            render();
-        });
+        }));
 
-        mainTableBody.find('.btn-win').on('click', function (e) {
-            let button = $(e.target);
+        mainTableBody.find('.btn-win').on('click', modifyRoundGenerator((button, round) => {
             let playerId = button.attr('data-related') ?? "X";
             let matchIndex = Number.parseInt(button.attr('data-related-match') ?? "X");
             let match = round.matches[matchIndex];
@@ -98,27 +107,19 @@ export function setupRound(round: Round) {
                     }
                 }
             }
-            render();
-        });
+        }));
 
-        mainTableBody.find('.btn-retreat').on('click', function (e) {
-            let button = $(e.target);
+        mainTableBody.find('.btn-retreat').on('click', modifyRoundGenerator((button, round) => {
             let playerId = button.attr('data-related') ?? "X";
             let matchIndex = Number.parseInt(button.attr('data-related-match') ?? "X");
             let match = round.matches[matchIndex];
             if (!!match) {
-                for (let result of match.results) {
-                    if (result.player.id === playerId) {
-                        round.retreats.push(result.player);
-
-                        // Enforce not repeated players
-                        let set = new Set<Player>(round.retreats);
-                        round.retreats = Array.from(set.values());
-                    }
+                let playerRetreating = match.results.find(p => p.player.id === playerId);
+                if (!!playerRetreating && !round.retreats.find(r => r.id === playerId)) {
+                    round.retreats.push(playerRetreating.player);
                 }
             }
-            render();
-        });
+        }));
     }
 
     function renderSwapDraw() {
@@ -129,7 +130,7 @@ export function setupRound(round: Round) {
         mainTable.find('.btn-double-ko').toggle(!drawIsDraw);
     }
 
-    function renderRetreats() {
+    function renderRetreats(round: Round) {
         roundRetreatTableBody.html('')
         for (let i = 0; i < round.retreats.length; i++) {
             let retreat = round.retreats[i];
@@ -146,14 +147,25 @@ export function setupRound(round: Round) {
             roundRetreatTableBody.append(row);
         }
 
-        $('.btn-cancel-retreat').on('click', function (e) {
-            let playerIndex = Number.parseInt($(e.target).attr('data-related') ?? "X");
+
+        $('.btn-cancel-retreat').on('click', modifyRoundGenerator((button, round) => {
+            let playerIndex = Number.parseInt(button.attr('data-related') ?? "X");
             round.retreats.splice(playerIndex, 1);
-            render();
-        })
+        }));
     }
 
-    function getMatchRowHtml(player1: Player, player2: Player, matchIndex: number) {
+    function modifyRoundGenerator(modifyRound: (button: JQuery<HTMLElement>, round: Round) => void)
+        : (e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) => void {
+        return (e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) => {
+            let round = TournamentStorage.getRound();
+            let button = $(e.target);
+            modifyRound(button, round);
+            TournamentStorage.saveRound();
+            render();
+        };
+    }
+
+    function getMatchRowHtml(player1: PlayerWithStatistics, player2: PlayerWithStatistics, matchIndex: number) {
         return `
     <tr class="match-row">
     <th scope="row" class="text-center">${matchIndex + 1}</th>

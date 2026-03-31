@@ -1,11 +1,11 @@
-import {Player} from "./Models/Player.ts";
+import {Player, PlayerWithStatistics} from "./Models/Player.ts";
 
 export const Tools = {
     byeId: 'X',
     getRequiredRounds(playersLength: number) {
         return playersLength == 0 ? 0 : Math.ceil(Math.log2(playersLength));
     },
-    comparePlayers(a: Player, b: Player, compareName: boolean = true): number {
+    comparePlayers(a: PlayerWithStatistics, b: PlayerWithStatistics, compareName: boolean = true): number {
         // Bye always last.
         if (a.id === Tools.byeId) return +1;
         if (b.id === Tools.byeId) return -1;

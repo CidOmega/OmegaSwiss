@@ -1,39 +1,53 @@
-import {Player} from "./Player.ts";
+import {Player, PlayerMatchmakingInfo, PlayerWithStatistics} from "./Player.ts";
 import {Round} from "./Round.ts";
 import {PlayerHistory} from "./PlayerHistory.ts";
 import {Tools} from "../Tools.ts";
 import {Match} from "./Match.ts";
 import {MatchResultEnum} from "./MatchResultEnum.ts";
 import {MatchResult} from "./MatchResult.ts";
-import {PlayerWithAvailableRivals} from "./PlayerWithAvailableRivals.ts";
 import {PlayerStatistics} from "./PlayerStatistics.ts";
 
 export class Tournament {
+    closed: boolean = false;
+    roundCount: number = 1;
+    roundTotal: number;
     allPlayerHistories: PlayerHistory[] = [];
     retreats: Player[] = [];
     // rounds: Round[] = [];
 
-    bye: Player = {id: Tools.byeId, name: 'Bye', statistics: new PlayerStatistics(0, 0, 0)};
+    bye: PlayerWithStatistics = {id: Tools.byeId, name: 'Bye', statistics: new PlayerStatistics(0, 0, 0)};
 
     constructor(players: Player[]) {
         for (let player of players) {
             this.allPlayerHistories.push(new PlayerHistory(player));
         }
+        this.roundTotal = Tools.getRequiredRounds(players.length);
+    }
+
+    static copy(other: Tournament): Tournament {
+        let response = new Tournament([]);
+
+        response.roundCount = other.roundCount;
+        response.roundTotal = other.roundTotal;
+        response.allPlayerHistories = other.allPlayerHistories.map(ph => PlayerHistory.copy(ph));
+        response.retreats = other.retreats;
+
+        return response;
     }
 
     getActivePlayers(): PlayerHistory[] {
         let activePlayers: PlayerHistory[] = [];
         for (let playerHistory of this.allPlayerHistories) {
-            if (this.retreats.indexOf(playerHistory.player) === -1) {
+            if (!this.retreats.find(r => r.id === playerHistory.player.id)) {
                 activePlayers.push(playerHistory);
             }
         }
         return activePlayers;
     }
 
-    getByeWithRivals(): { player: Player, availableRivals: Player[] } {
+    getByeWithRivals(): PlayerMatchmakingInfo {
         let availableRivals = this.getActivePlayers()
-            .filter(ph => ph.getRivals().indexOf(this.bye) === -1)
+            .filter(ph => !ph.getRivals().find(r => r.id === Tools.byeId))
             .map(ph => ph.player);
         return {player: this.bye, availableRivals: availableRivals};
     }
@@ -46,18 +60,18 @@ export class Tournament {
         }
 
         let matches: Match[] = []
-        let cannotFindRival: Player[] = [];
+        let cannotFindRival: PlayerWithStatistics[] = [];
 
         let playerPointer = playersWithAvailableRivals.shift();
         while (!!playerPointer) {
             let availableRivals = playersWithAvailableRivals
-                .filter(t => t.availableRivals.indexOf(playerPointer!.player) !== -1);
+                .filter(t => t.availableRivals.find(r => r.id === playerPointer!.player.id));
 
             let iAmTheOnlyRival = availableRivals
                 .filter(t => t.availableRivals.length === 1)
                 .shift();
 
-            let rival: PlayerWithAvailableRivals | undefined = undefined;
+            let rival: PlayerMatchmakingInfo | undefined = undefined;
             if (iAmTheOnlyRival) {
                 rival = iAmTheOnlyRival;
             } else {
@@ -107,7 +121,7 @@ export class Tournament {
 
         return new Round(matches);
 
-        function getNewMatch(a: Player, b: Player): Match {
+        function getNewMatch(a: PlayerWithStatistics, b: PlayerWithStatistics): Match {
             let players = [a, b].sort(Tools.comparePlayers);
 
             return {
@@ -120,15 +134,15 @@ export class Tournament {
 
         function getRestOfRivals(availableRivals: Player[], playersToNotCount: Player[]): Player[] {
             return availableRivals
-                .filter(p => playersToNotCount.indexOf(p) === -1);
+                .filter(p => !playersToNotCount.find(ptnc => p.id === ptnc.id));
         }
     }
 
-    getNextRoundPlayersWithRivals(): PlayerWithAvailableRivals[] {
+    getNextRoundPlayersWithRivals(): PlayerMatchmakingInfo[] {
         let activePlayers = this.getActivePlayers().map((ph) => ph.player);
         let playersTree = this.getNextRoundPlayersTree();
         let treeKeys = Object.keys(playersTree).sort().reverse();
-        let players: PlayerWithAvailableRivals[] = [];
+        let players: PlayerMatchmakingInfo[] = [];
         for (let key of treeKeys) {
             let playerHistories = playersTree[key];
             Tools.shuffle(playerHistories);
@@ -137,10 +151,13 @@ export class Tournament {
                 let doneRivals = playerHistory.getRivals();
                 let availableRivals = activePlayers
                     // Filter already done
-                    .filter(value => doneRivals.indexOf(value) === -1)
+                    .filter(value => !doneRivals.find(dr => dr.id === value.id))
                     // Filter myself
-                    .filter(value => playerHistory.player !== value);
-                players.push({player: playerHistory.player, availableRivals: availableRivals});
+                    .filter(value => playerHistory.player.id !== value.id);
+                players.push({
+                    player: {...playerHistory.player, statistics: playerHistory.getStatistics()},
+                    availableRivals: availableRivals,
+                });
             }
         }
         return players;
@@ -158,7 +175,6 @@ export class Tournament {
                 playersTree[key] = [];
             }
 
-            playerHistory.player.statistics = playerStatistics;
             playersTree[key].push(playerHistory);
         }
 
