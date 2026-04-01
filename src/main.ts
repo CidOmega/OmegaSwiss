@@ -5,6 +5,7 @@ import {continueTournament, startTournament} from "./Controllers/TournamentContr
 export function setupApp() {
     let playerSection = $('#playerSection');
     let roundSection = $('#roundSection');
+    let rankingSection = $('#rankingSection');
 
     let headingOne = $('#headingOne');
     let startTournamentButton = $('#startTournament');
@@ -14,6 +15,7 @@ export function setupApp() {
         // "Start" is in the collapse section, it will be opened.
         headingOne.trigger('click');
         roundSection.show();
+        rankingSection.show();
 
         startTournament();
     });
@@ -22,6 +24,7 @@ export function setupApp() {
         // "Continue" is in the collapse section, it will be opened.
         headingOne.trigger('click');
         roundSection.show();
+        rankingSection.show();
 
         continueTournament();
     });
