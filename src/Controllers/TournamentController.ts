@@ -2,6 +2,7 @@ import {TournamentStorage} from "../Storage/TournamentStorage.ts";
 import {Tournament} from "../Models/Tournament.ts";
 import {PlayerStorage} from "../Storage/PlayerStorage.ts";
 import {setupRound} from "./RoundController.ts";
+import {Tiebreaker} from "../Models/Tiebreaker.ts";
 
 let initializeUi = true;
 
@@ -21,12 +22,13 @@ export function continueTournament() {
 }
 
 function setupTournament() {
-
     let roundCountDisplay = $('#roundCountDisplay');
 
     let rerollRound = $('#rerollRound');
     let endRound = $('#endRound');
     let incompleteRoundModal = $('#incompleteRoundModal');
+
+    let rankingTableBody = $('#rankingTable').find('tbody');
 
     if (initializeUi) {
         rerollRound.on('click', newRound);
@@ -44,7 +46,6 @@ function setupTournament() {
             TournamentStorage.saveTournament();
 
             newRound();
-            renderRanking();
         });
 
         initializeUi = false;
@@ -57,11 +58,13 @@ function setupTournament() {
         let newRound = tournament.getNextRound();
         TournamentStorage.saveRound(newRound);
         doRound();
+        renderRanking();
     }
 
     function doRound() {
         let tournament = TournamentStorage.getTournament();
         roundCountDisplay.html(`Ronda ${tournament.roundCount}/${tournament.roundTotal}`);
+        renderRanking();
 
         setupRound();
     }
@@ -70,8 +73,22 @@ function setupTournament() {
         let tournament = TournamentStorage.getTournament();
         let playerTiebreakers = tournament.getRanking();
 
-        for (let pt of playerTiebreakers) {
-            console.log(`${pt.player.name} - ${pt.kda} - ${pt.matchPoints} - ${pt.opponentsMatchWinPercentage}`);
+        rankingTableBody.html('')
+        for (let i = 0; i < playerTiebreakers.length; i++) {
+            let tiebreaker = playerTiebreakers[i];
+            let row = getRankingRow(tiebreaker, i + 1);
+            rankingTableBody.append(row)
+        }
+
+        function getRankingRow(tiebreaker: Tiebreaker, classification: number) {
+            return `
+    <tr class="match-row">
+    <th scope="row" class="text-center">${classification}</th>
+    <td>${tiebreaker.player.name} ${tiebreaker.kda}</td>
+    <td>${tiebreaker.matchPoints}</td>
+    <td>${Math.trunc(tiebreaker.opponentsMatchWinPercentage * 100000).toLocaleString('en-us')}</td>
+    </tr>
+`;
         }
     }
 }
