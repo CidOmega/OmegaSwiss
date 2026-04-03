@@ -206,6 +206,7 @@ export class Tournament {
                     matchPoints: statistics.getMatchPoints(),
                     matchWinPercentage: statistics.getMatchWinPercentaje(),
                     opponentsMatchWinPercentage: 0,
+                    binary: 0,
                 }];
             }));
 
@@ -213,16 +214,24 @@ export class Tournament {
         for (let ph of this.allPlayerHistories) {
             let omwpSum = 0;
             let rivalCount = 0;
-            for (let rival of ph.getRivals()) {
-                if (rival.id === Tools.byeId) continue;
+            let binary = 0;
+            for (let i = 0; i < ph.matchResults.length; i++) {
+                let rival = ph.matchResults[i];
+                
+                // Lose, Lose, Win, Lose, Win -> 0b10100 -> 20
+                // Last matches weight more, supposedly not fair...
+                binary += rival.result === MatchResultEnum.Win ? Math.pow(2, i) : 0;
 
-                omwpSum += playerTiebreakersDictionary[rival.id].matchWinPercentage;
+                if (rival.player.id === Tools.byeId) continue;
+
+                omwpSum += playerTiebreakersDictionary[rival.player.id].matchWinPercentage;
                 rivalCount++;
             }
 
             let tiebreaker = playerTiebreakersDictionary[ph.player.id];
             // Math.max(1, rivalCount) to prevent division by zero on only bye rival. 
             tiebreaker.opponentsMatchWinPercentage = omwpSum / Math.max(1, rivalCount);
+            tiebreaker.binary = binary;
             playerTiebreakers.push(tiebreaker);
         }
 

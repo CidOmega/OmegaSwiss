@@ -111,7 +111,7 @@ function setupTournament() {
     <th scope="row" class="text-center">${head}</th>
     <td title="vs\n${tiebreaker.rivalNames.join('\n')}">${tiebreaker.player.name} ${tiebreaker.kda}</td>
     <td>${tiebreaker.matchPoints}</td>
-    <td>${Math.trunc(tiebreaker.opponentsMatchWinPercentage * 100000).toLocaleString('en-us')}</td>
+    <td>${Math.trunc(tiebreaker.opponentsMatchWinPercentage * 100000).toLocaleString('en-us')} - ${tiebreaker.binary}</td>
     </tr>
 `;
         }

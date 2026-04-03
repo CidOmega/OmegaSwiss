@@ -44,6 +44,8 @@ export const Tools = {
         return b.matchPoints - a.matchPoints
             // Descending
             || b.opponentsMatchWinPercentage - a.opponentsMatchWinPercentage
+            // Descending
+            || b.binary - a.binary
             // Ascending
             || (compareName ? a.player.name.localeCompare(b.player.name) : 0);
     },

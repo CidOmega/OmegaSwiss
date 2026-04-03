@@ -7,4 +7,5 @@ export interface Tiebreaker {
     matchPoints: number;
     matchWinPercentage: number;
     opponentsMatchWinPercentage: number;
+    binary: number;
 }
