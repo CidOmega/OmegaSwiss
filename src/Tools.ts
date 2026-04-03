@@ -1,4 +1,5 @@
 import {Player, PlayerWithStatistics} from "./Models/Player.ts";
+import {Tiebreaker} from "./Models/Tiebreaker.ts";
 
 export const Tools = {
     byeId: 'X',
@@ -37,5 +38,13 @@ export const Tools = {
     deleteFromArray<T>(array: T[], element: T) {
         let index = array.indexOf(element);
         array.splice(index, 1);
-    }
+    },
+    compareTiebreaker(a: Tiebreaker, b: Tiebreaker): number {
+        // Descending
+        return b.matchPoints - a.matchPoints
+            // Descending
+            || b.opponentsMatchWinPercentage - a.opponentsMatchWinPercentage
+            // Ascending
+            || a.player.name.localeCompare(b.player.name);
+    },
 }
