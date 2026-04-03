@@ -3,6 +3,7 @@ import {Tournament} from "../Models/Tournament.ts";
 import {PlayerStorage} from "../Storage/PlayerStorage.ts";
 import {setupRound} from "./RoundController.ts";
 import {Tiebreaker} from "../Models/Tiebreaker.ts";
+import {Tools} from "../Tools.ts";
 
 let initializeUi = true;
 
@@ -74,9 +75,19 @@ function setupTournament() {
         let playerTiebreakers = tournament.getRanking();
 
         rankingTableBody.html('')
+        let lastClassification = 1;
         for (let i = 0; i < playerTiebreakers.length; i++) {
             let tiebreaker = playerTiebreakers[i];
-            let row = getRankingRow(tiebreaker, i + 1);
+            let classification = i + 1;
+            if (i !== 0 && Tools.compareTiebreaker(tiebreaker, playerTiebreakers[i - 1], false) === 0) {
+                // On tie, reuse lastClassification.
+                classification = lastClassification;
+            } else {
+                // If no tie, update lastClassification.
+                lastClassification = classification;
+            }
+
+            let row = getRankingRow(tiebreaker, classification);
             rankingTableBody.append(row)
         }
 
@@ -84,7 +95,7 @@ function setupTournament() {
             return `
     <tr class="match-row">
     <th scope="row" class="text-center">${classification}</th>
-    <td>${tiebreaker.player.name} ${tiebreaker.kda}</td>
+    <td title="vs\n${tiebreaker.rivalNames.join('\n')}">${tiebreaker.player.name} ${tiebreaker.kda}</td>
     <td>${tiebreaker.matchPoints}</td>
     <td>${Math.trunc(tiebreaker.opponentsMatchWinPercentage * 100000).toLocaleString('en-us')}</td>
     </tr>

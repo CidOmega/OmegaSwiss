@@ -5,6 +5,7 @@ import {Tools} from "../Tools.ts";
 import {MatchResult} from "./MatchResult.ts";
 import {PlayerStatistics} from "./PlayerStatistics.ts";
 import {Tiebreaker} from "./Tiebreaker.ts";
+import {MatchResultEnum} from "./MatchResultEnum.ts";
 
 export class Tournament {
     closed: boolean = false;
@@ -195,33 +196,30 @@ export class Tournament {
     }
 
     getRanking(): Tiebreaker[] {
-        let playersInfo: PlayerMatchmakingInfo[] = this.allPlayerHistories
-            .map(ph => ({
-                player: {...ph.player, statistics: ph.getStatistics()},
-                availableRivals: ph.getRivals(),
-            }));
-        let playerTiebreakersDictionary: { [id: string]: Tiebreaker } = Object.fromEntries(playersInfo.map(ps => {
-            return [ps.player.id, {
-                player: ps.player,
-                kda: ps.player.statistics.getKda(),
-                matchPoints: ps.player.statistics.getMatchPoints(),
-                matchWinPercentage: ps.player.statistics.getMatchWinPercentaje(),
+        let playerTiebreakersDictionary: { [id: string]: Tiebreaker } = Object.fromEntries(this.allPlayerHistories.map(ph => {
+            let statistics = ph.getStatistics();
+            return [ph.player.id, {
+                player: ph.player,
+                kda: statistics.getKda(),
+                rivalNames: ph.matchResults.map(r => `${r.player.name} - ${MatchResultEnum[r.result]}`),
+                matchPoints: statistics.getMatchPoints(),
+                matchWinPercentage: statistics.getMatchWinPercentaje(),
                 opponentsMatchWinPercentage: 0,
             }];
         }));
 
         let playerTiebreakers: Tiebreaker[] = []
-        for (let pi of playersInfo) {
+        for (let ph of this.allPlayerHistories) {
             let omwpSum = 0;
             let rivalCount = 0;
-            for (let rival of pi.availableRivals) {
+            for (let rival of ph.getRivals()) {
                 if (rival.id === Tools.byeId) continue;
 
                 omwpSum += playerTiebreakersDictionary[rival.id].matchWinPercentage;
                 rivalCount++;
             }
 
-            let tiebreaker = playerTiebreakersDictionary[pi.player.id];
+            let tiebreaker = playerTiebreakersDictionary[ph.player.id];
             // Math.max(1, rivalCount) to prevent division by zero on only bye rival. 
             tiebreaker.opponentsMatchWinPercentage = omwpSum / Math.max(1, rivalCount);
             playerTiebreakers.push(tiebreaker);
