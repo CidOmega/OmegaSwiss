@@ -106,12 +106,18 @@ function setupTournament() {
                     break;
             }
 
+            let toShowTiebreaker =
+                tiebreaker.matchPoints * 1000 * 1000 * 1000
+                + Math.floor(tiebreaker.opponentsMatchWinPercentage * 1000 * 1000) * 1000
+                + tiebreaker.binary;
+            let titleTiebreaker = `${tiebreaker.matchPoints}\n${tiebreaker.opponentsMatchWinPercentage}\n${tiebreaker.binary}`
+
             return `
     <tr>
     <th scope="row" class="text-center">${head}</th>
-    <td title="vs\n${tiebreaker.rivalNames.join('\n')}">${tiebreaker.player.name} ${tiebreaker.kda}</td>
-    <td>${tiebreaker.matchPoints}</td>
-    <td>${Math.trunc(tiebreaker.opponentsMatchWinPercentage * 100000).toLocaleString('en-us')} - ${tiebreaker.binary}</td>
+    <td title="vs\n${tiebreaker.rivalNames.join('\n')}">${tiebreaker.player.name}</td>
+    <td>${tiebreaker.kda}</td>
+    <td title="${titleTiebreaker}">${toShowTiebreaker.toLocaleString('en-us')}</td>
     </tr>
 `;
         }

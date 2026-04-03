@@ -217,7 +217,7 @@ export class Tournament {
             let binary = 0;
             for (let i = 0; i < ph.matchResults.length; i++) {
                 let rival = ph.matchResults[i];
-                
+
                 // Lose, Lose, Win, Lose, Win -> 0b10100 -> 20
                 // Last matches weight more, supposedly not fair...
                 binary += rival.result === MatchResultEnum.Win ? Math.pow(2, i) : 0;
@@ -231,7 +231,11 @@ export class Tournament {
             let tiebreaker = playerTiebreakersDictionary[ph.player.id];
             // Math.max(1, rivalCount) to prevent division by zero on only bye rival. 
             tiebreaker.opponentsMatchWinPercentage = omwpSum / Math.max(1, rivalCount);
-            tiebreaker.binary = binary;
+
+            // Power the binary to hide simplicity...
+            let pow = Math.max(1, 7 - this.roundCount);
+            tiebreaker.binary = Math.pow(binary, pow);
+
             playerTiebreakers.push(tiebreaker);
         }
 
