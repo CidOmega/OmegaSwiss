@@ -39,12 +39,12 @@ export const Tools = {
         let index = array.indexOf(element);
         array.splice(index, 1);
     },
-    compareTiebreaker(a: Tiebreaker, b: Tiebreaker): number {
+    compareTiebreaker(a: Tiebreaker, b: Tiebreaker, compareName: boolean = true): number {
         // Descending
         return b.matchPoints - a.matchPoints
             // Descending
             || b.opponentsMatchWinPercentage - a.opponentsMatchWinPercentage
             // Ascending
-            || a.player.name.localeCompare(b.player.name);
+            || (compareName ? a.player.name.localeCompare(b.player.name) : 0);
     },
 }
