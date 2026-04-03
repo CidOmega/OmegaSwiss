@@ -92,9 +92,23 @@ function setupTournament() {
         }
 
         function getRankingRow(tiebreaker: Tiebreaker, classification: number) {
+            let head = classification.toString();
+
+            switch (classification) {
+                case 1:
+                    head = '<i class="bi bi-1-circle-fill" style="color: #D4AF37">';
+                    break;
+                case 2:
+                    head = '<i class="bi bi-2-circle-fill" style="color: #C0C0C0">';
+                    break;
+                case 3:
+                    head = '<i class="bi bi-3-circle-fill" style="color: #CD7F32">';
+                    break;
+            }
+
             return `
-    <tr class="match-row">
-    <th scope="row" class="text-center">${classification}</th>
+    <tr>
+    <th scope="row" class="text-center">${head}</th>
     <td title="vs\n${tiebreaker.rivalNames.join('\n')}">${tiebreaker.player.name} ${tiebreaker.kda}</td>
     <td>${tiebreaker.matchPoints}</td>
     <td>${Math.trunc(tiebreaker.opponentsMatchWinPercentage * 100000).toLocaleString('en-us')}</td>
