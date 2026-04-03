@@ -196,17 +196,18 @@ export class Tournament {
     }
 
     getRanking(): Tiebreaker[] {
-        let playerTiebreakersDictionary: { [id: string]: Tiebreaker } = Object.fromEntries(this.allPlayerHistories.map(ph => {
-            let statistics = ph.getStatistics();
-            return [ph.player.id, {
-                player: ph.player,
-                kda: statistics.getKda(),
-                rivalNames: ph.matchResults.map(r => `${r.player.name} - ${MatchResultEnum[r.result]}`),
-                matchPoints: statistics.getMatchPoints(),
-                matchWinPercentage: statistics.getMatchWinPercentaje(),
-                opponentsMatchWinPercentage: 0,
-            }];
-        }));
+        let playerTiebreakersDictionary: { [id: string]: Tiebreaker } =
+            Object.fromEntries(this.allPlayerHistories.map(ph => {
+                let statistics = ph.getStatistics();
+                return [ph.player.id, {
+                    player: ph.player,
+                    kda: statistics.getKda(),
+                    rivalNames: ph.matchResults.map(r => `${r.player.name} - ${MatchResultEnum[r.result]}`),
+                    matchPoints: statistics.getMatchPoints(),
+                    matchWinPercentage: statistics.getMatchWinPercentaje(),
+                    opponentsMatchWinPercentage: 0,
+                }];
+            }));
 
         let playerTiebreakers: Tiebreaker[] = []
         for (let ph of this.allPlayerHistories) {
