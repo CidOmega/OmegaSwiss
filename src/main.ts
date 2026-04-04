@@ -20,22 +20,30 @@ export function setupApp() {
     });
 
     continueTournamentButton.on('click', () => {
-        CollapseController.showRound();
-        roundSection.show();
-        rankingSection.show();
-
-        continueTournament();
+        localContinueTournament();
     });
 
     playerSection.show();
 
     setupPlayersController();
     let tournament = TournamentStorage.getTournament();
-    if (!tournament.closed && tournament.getActivePlayers().length !== 0) {
+    let thereArePlayers = tournament.getActivePlayers().length !== 0;
+    if (thereArePlayers) {
         continueTournamentButton.show();
+    }
 
-        // TODO do properly
-        continueTournamentButton.trigger('click');
+    if (!tournament.closed && thereArePlayers) {
+        localContinueTournament();
+    } else {
+        CollapseController.showPlayers();
+    }
+
+    function localContinueTournament() {
+        roundSection.show();
+        rankingSection.show();
+        CollapseController.showRound();
+
+        continueTournament();
     }
 }
 
