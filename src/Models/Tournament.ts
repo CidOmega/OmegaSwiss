@@ -27,6 +27,7 @@ export class Tournament {
     static copy(other: Tournament): Tournament {
         let response = new Tournament([]);
 
+        response.closed = other.closed;
         response.roundCount = other.roundCount;
         response.roundTotal = other.roundTotal;
         response.allPlayerHistories = other.allPlayerHistories.map(ph => PlayerHistory.copy(ph));

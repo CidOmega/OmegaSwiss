@@ -4,6 +4,7 @@ import {PlayerStorage} from "../Storage/PlayerStorage.ts";
 import {setupRound} from "./RoundController.ts";
 import {Tiebreaker} from "../Models/Tiebreaker.ts";
 import {Tools} from "../Tools.ts";
+import {CollapseController} from "./CollapseController.ts";
 
 let initializeUi = true;
 
@@ -28,6 +29,7 @@ function setupTournament() {
     let rerollRound = $('#rerollRound');
     let endRound = $('#endRound');
     let incompleteRoundModal = $('#incompleteRoundModal');
+    let endTournamentButton = $('#endTournament');
 
     let rankingTableBody = $('#rankingTable').find('tbody');
 
@@ -49,6 +51,25 @@ function setupTournament() {
             newRound();
         });
 
+        endTournamentButton.on('click', () => {
+            let activeRound = TournamentStorage.getRound();
+            if (!activeRound.isCompleted()) {
+                // TODO force endTournament
+                incompleteRoundModal.modal('show')
+                return;
+            }
+
+            let tournament = TournamentStorage.getTournament();
+            tournament.digestRound(activeRound);
+            tournament.roundCount = tournament.roundCount + 1;
+            tournament.closed = true;
+            TournamentStorage.saveTournament();
+
+            newRound();
+
+            CollapseController.showRanking();
+        });
+
         initializeUi = false;
     }
 
@@ -64,9 +85,22 @@ function setupTournament() {
 
     function doRound() {
         let tournament = TournamentStorage.getTournament();
-        roundCountDisplay.html(`Ronda ${tournament.roundCount}/${tournament.roundTotal}`);
-        renderRanking();
 
+        if (tournament.roundCount < tournament.roundTotal) {
+            endRound.text('Terminar ronda');
+            endTournamentButton.hide();
+        } else {
+            endRound.text('Ronda extra');
+            endTournamentButton.show();
+        }
+
+        if (tournament.roundCount <= tournament.roundTotal) {
+            roundCountDisplay.html(`Ronda ${tournament.roundCount}/${tournament.roundTotal}`);
+        } else {
+            roundCountDisplay.html(`Ronda extra ${tournament.roundCount - tournament.roundTotal}`);
+        }
+
+        renderRanking();
         setupRound();
     }
 
