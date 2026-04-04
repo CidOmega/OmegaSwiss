@@ -1,19 +1,18 @@
 import {setupPlayersController} from "./Controllers/PlayersController.ts";
 import {TournamentStorage} from "./Storage/TournamentStorage.ts";
 import {continueTournament, startTournament} from "./Controllers/TournamentController.ts";
+import {CollapseController} from "./Controllers/CollapseController.ts";
 
 export function setupApp() {
     let playerSection = $('#playerSection');
     let roundSection = $('#roundSection');
     let rankingSection = $('#rankingSection');
 
-    let headingPlayers = $('#headingPlayers');
     let startTournamentButton = $('#startTournament');
     let continueTournamentButton = $('#continueTournament');
 
     startTournamentButton.on('click', () => {
-        // "Start" is in the collapse section, it will be opened.
-        headingPlayers.trigger('click');
+        CollapseController.showRound();
         roundSection.show();
         rankingSection.show();
 
@@ -21,8 +20,7 @@ export function setupApp() {
     });
 
     continueTournamentButton.on('click', () => {
-        // "Continue" is in the collapse section, it will be opened.
-        headingPlayers.trigger('click');
+        CollapseController.showRound();
         roundSection.show();
         rankingSection.show();
 
