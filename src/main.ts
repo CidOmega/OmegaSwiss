@@ -7,13 +7,13 @@ export function setupApp() {
     let roundSection = $('#roundSection');
     let rankingSection = $('#rankingSection');
 
-    let headingOne = $('#headingOne');
+    let headingPlayers = $('#headingPlayers');
     let startTournamentButton = $('#startTournament');
     let continueTournamentButton = $('#continueTournament');
 
     startTournamentButton.on('click', () => {
         // "Start" is in the collapse section, it will be opened.
-        headingOne.trigger('click');
+        headingPlayers.trigger('click');
         roundSection.show();
         rankingSection.show();
 
@@ -22,7 +22,7 @@ export function setupApp() {
 
     continueTournamentButton.on('click', () => {
         // "Continue" is in the collapse section, it will be opened.
-        headingOne.trigger('click');
+        headingPlayers.trigger('click');
         roundSection.show();
         rankingSection.show();
 
