@@ -1,0 +1,15 @@
+[aria-expanded="true"] .show-on-expanded {
+    display: unset;
+}
+
+[aria-expanded="true"] .hide-on-expanded {
+    display: none;
+}
+
+[aria-expanded="false"] .show-on-expanded {
+    display: none;
+}
+
+[aria-expanded="false"] .hide-on-expanded {
+    display: unset;
+}
