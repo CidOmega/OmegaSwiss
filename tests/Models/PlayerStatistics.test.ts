@@ -23,3 +23,32 @@ describe('PlayerStatistics.getKey', () => {
         expect(key).toStrictEqual(expectedKey);
     });
 })
+
+describe('PlayerStatistics.getTrueMatchWinPercentaje', () => {
+    const dataSet: [number, number, number, number][] = [
+        // Random
+        [0, 0, 0, 0],
+        [7, 0, 0, 1],
+        [700, 0, 0, 1],
+        [0, 5, 0, 0],
+        [0, 500, 0, 0],
+        [0, 0, 3, 3/9],
+        [0, 0, 300, 3/9],
+        [1, 2, 3, 6/18],
+        // https://mtg.fandom.com/wiki/Tiebreaker
+        [5, 2, 1, 16/24],
+        [1, 3, 0, 3/12],
+        [3, 2, 0, 9/15],
+    ];
+
+    it.each(dataSet)('Correct key', (wins: number, loses: number, draws: number, expected: number) => {
+        // Arrange
+        let playerStatistics = new PlayerStatistics(wins, loses, draws);
+
+        // Act
+        let matchWinPercentaje = playerStatistics.getTrueMatchWinPercentaje();
+
+        // Assert
+        expect(matchWinPercentaje).toBeCloseTo(expected, 5);
+    });
+})

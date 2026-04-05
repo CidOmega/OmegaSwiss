@@ -20,6 +20,23 @@ export class PlayerStatistics {
         return `${winsString}-${drawsString}-${losesString}`
     }
 
-    // getTrueMatchWinPercentaje() {  ...  }
-    // getMatchWinPercentaje() {  return Math.Max(0.33, this.getTrueMatchWinPercentaje())  }
+    getMatchPoints(): number {
+        return  this.wins * 3 + this.draws;
+    }
+
+    getTrueMatchWinPercentaje(): number {
+        let rounds = this.wins + this.loses + this.draws;
+        if (rounds <= 0) {
+            return 0;
+        }
+
+        let matchPoints = this.getMatchPoints();
+        let maxMatchPoints = rounds * 3;
+
+        return matchPoints / maxMatchPoints;
+    }
+
+    getMatchWinPercentaje() {
+        return Math.max(0.33, this.getTrueMatchWinPercentaje());
+    }
 }

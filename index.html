@@ -8,15 +8,14 @@
           rel="stylesheet"
           integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
           crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+          rel="stylesheet">
 
     <script src="https://code.jquery.com/jquery-4.0.0.min.js"
             integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao="
             crossorigin="anonymous"
             defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-            crossorigin="anonymous"
-            defer></script>
+    <!-- Bootstrap loaded via vite -->
     <script type="module" src="./src/main.ts" defer></script>
 </head>
 <body class="p-3">
@@ -25,16 +24,16 @@
 </h1>
 
 <div id="playerSection" class="card" style="display: none;">
-    <div class="navbar navbar-light bg-light" id="headingOne"
-         data-bs-toggle="collapse" data-bs-target="#collapseOne"
-         aria-expanded="true" aria-controls="collapseOne">
+    <div class="navbar navbar-light bg-light" id="headingPlayers"
+         data-bs-toggle="collapse" data-bs-target="#collapsePlayers"
+         aria-expanded="true" aria-controls="collapsePlayers">
         <h5 class="mb-0">
             <button class="btn btn-link">
                 Jugadores
             </button>
         </h5>
     </div>
-    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-bs-parent="#accordion">
+    <div id="collapsePlayers" class="collapse" aria-labelledby="headingPlayers">
         <div class="card-body">
             <div class="row">
                 <div class="form-group col-3">
@@ -86,16 +85,16 @@
 </div>
 
 <div id="roundSection" class="card" style="display: none;">
-    <div class="navbar navbar-light bg-light" id="headingTwo"
-         data-bs-toggle="collapse" data-bs-target="#collapseTwo"
-         aria-expanded="true" aria-controls="collapseTwo">
+    <div class="navbar navbar-light bg-light" id="headingRound"
+         data-bs-toggle="collapse" data-bs-target="#collapseRound"
+         aria-expanded="true" aria-controls="collapseRound">
         <h5 class="mb-0">
             <button class="btn btn-link">
                 Torneo
             </button>
         </h5>
     </div>
-    <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-bs-parent="#accordion">
+    <div id="collapseRound" class="collapse" aria-labelledby="headingRound">
         <div class="card-body">
             <div class="row m-1">
                 <div class="col-2 text-start">
@@ -107,7 +106,12 @@
                 <div class="col-2 text-start">
                     <button id="rerollRound" type="button" class="btn btn-primary text-nowrap">Reroll</button>
                 </div>
-                <div class="col-6 text-end">
+                <div class="col-2 text-start">
+                    <button id="endTournament" type="button" class="btn btn-primary text-nowrap" style="display: none;">
+                        Cerrar torneo
+                    </button>
+                </div>
+                <div class="col-4 text-end">
                     <div class="row">
                         <div class="col-12 col-lg-10">
                             <div class="row">
@@ -152,20 +156,49 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="incompleteRoundModal" tabindex="-1" role="dialog"
+         aria-labelledby="incompleteRoundModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="incompleteRoundModalLabel">Ronda incompleta</h5>
+                </div>
+                <div class="modal-body">
+                    No todos los enfrentamientos tienen resultado, no se puede cerrar la ronda.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="modal fade" id="incompleteRoundModal" tabindex="-1" role="dialog"
-     aria-labelledby="incompleteRoundModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="incompleteRoundModalLabel">Ronda incompleta</h5>
-            </div>
-            <div class="modal-body">
-                No todos los enfrentamientos tienen resultado, no se puede cerrar la ronda.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+<div id="rankingSection" class="card" style="display: none;">
+    <div class="navbar navbar-light bg-light" id="headingRanking"
+         data-bs-toggle="collapse" data-bs-target="#collapseRanking"
+         aria-expanded="true" aria-controls="collapseRanking">
+        <h5 class="mb-0">
+            <button class="btn btn-link">
+                Clasificacion
+            </button>
+        </h5>
+    </div>
+    <div id="collapseRanking" class="collapse" aria-labelledby="headingRanking">
+        <div class="card-body">
+            <div class="row p-1">
+                <table id="rankingTable" class="table table-striped table-bordered">
+                    <thead>
+                    <tr class="table-dark">
+                        <th scope="col" class="col"></th>
+                        <th scope="col" class="col-4">Jugador</th>
+                        <th scope="col" class="col-4">Resultados</th>
+                        <th scope="col" class="col-4">Tie-breaker</th>
+                    </tr>
+                    </thead>
+                    <tbody class="table-group-divider"></tbody>
+                </table>
             </div>
         </div>
     </div>

@@ -1,40 +1,49 @@
 import {setupPlayersController} from "./Controllers/PlayersController.ts";
 import {TournamentStorage} from "./Storage/TournamentStorage.ts";
 import {continueTournament, startTournament} from "./Controllers/TournamentController.ts";
+import {CollapseController} from "./Controllers/CollapseController.ts";
 
 export function setupApp() {
     let playerSection = $('#playerSection');
     let roundSection = $('#roundSection');
+    let rankingSection = $('#rankingSection');
 
-    let headingOne = $('#headingOne');
     let startTournamentButton = $('#startTournament');
     let continueTournamentButton = $('#continueTournament');
 
     startTournamentButton.on('click', () => {
-        // "Start" is in the collapse section, it will be opened.
-        headingOne.trigger('click');
         roundSection.show();
+        rankingSection.show();
+        CollapseController.showRound();
 
         startTournament();
     });
 
     continueTournamentButton.on('click', () => {
-        // "Continue" is in the collapse section, it will be opened.
-        headingOne.trigger('click');
-        roundSection.show();
-
-        continueTournament();
+        localContinueTournament();
     });
 
     playerSection.show();
 
     setupPlayersController();
     let tournament = TournamentStorage.getTournament();
-    if (!tournament.closed && tournament.getActivePlayers().length !== 0) {
+    let thereArePlayers = tournament.getActivePlayers().length !== 0;
+    if (thereArePlayers) {
         continueTournamentButton.show();
+    }
 
-        // TODO do properly
-        continueTournamentButton.trigger('click');
+    if (!tournament.closed && thereArePlayers) {
+        localContinueTournament();
+    } else {
+        CollapseController.showPlayers();
+    }
+
+    function localContinueTournament() {
+        roundSection.show();
+        rankingSection.show();
+        CollapseController.showRound();
+
+        continueTournament();
     }
 }
 

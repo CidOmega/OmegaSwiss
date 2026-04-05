@@ -4,6 +4,8 @@ import {PlayerHistory} from "./PlayerHistory.ts";
 import {Tools} from "../Tools.ts";
 import {MatchResult} from "./MatchResult.ts";
 import {PlayerStatistics} from "./PlayerStatistics.ts";
+import {Tiebreaker} from "./Tiebreaker.ts";
+import {MatchResultEnum} from "./MatchResultEnum.ts";
 
 export class Tournament {
     closed: boolean = false;
@@ -25,6 +27,7 @@ export class Tournament {
     static copy(other: Tournament): Tournament {
         let response = new Tournament([]);
 
+        response.closed = other.closed;
         response.roundCount = other.roundCount;
         response.roundTotal = other.roundTotal;
         response.allPlayerHistories = other.allPlayerHistories.map(ph => PlayerHistory.copy(ph));
@@ -191,5 +194,54 @@ export class Tournament {
         }
 
         this.retreats.push(...round.retreats);
+    }
+
+    getRanking(): Tiebreaker[] {
+        let playerTiebreakersDictionary: { [id: string]: Tiebreaker } =
+            Object.fromEntries(this.allPlayerHistories.map(ph => {
+                let statistics = ph.getStatistics();
+                return [ph.player.id, {
+                    player: ph.player,
+                    kda: statistics.getKda(),
+                    rivalNames: ph.matchResults.map(r => `${r.player.name} - ${MatchResultEnum[r.result]}`),
+                    matchPoints: statistics.getMatchPoints(),
+                    matchWinPercentage: statistics.getMatchWinPercentaje(),
+                    opponentsMatchWinPercentage: 0,
+                    binary: 0,
+                }];
+            }));
+
+        let playerTiebreakers: Tiebreaker[] = []
+        for (let ph of this.allPlayerHistories) {
+            let omwpSum = 0;
+            let rivalCount = 0;
+            let binary = 0;
+            for (let i = 0; i < ph.matchResults.length; i++) {
+                let rival = ph.matchResults[i];
+
+                // Lose, Lose, Win, Lose, Win -> 0b10100 -> 20
+                // Last matches weight more, supposedly not fair...
+                binary += rival.result === MatchResultEnum.Win ? Math.pow(2, i) : 0;
+
+                if (rival.player.id === Tools.byeId) continue;
+
+                omwpSum += playerTiebreakersDictionary[rival.player.id].matchWinPercentage;
+                rivalCount++;
+            }
+
+            let tiebreaker = playerTiebreakersDictionary[ph.player.id];
+            // Math.max(1, rivalCount) to prevent division by zero on only bye rival. 
+            tiebreaker.opponentsMatchWinPercentage = omwpSum / Math.max(1, rivalCount);
+
+            // Power the binary to hide simplicity...
+            let pow = Math.max(1, 7 - this.roundCount);
+            tiebreaker.binary = Math.pow(binary, pow);
+
+            playerTiebreakers.push(tiebreaker);
+        }
+
+        playerTiebreakers.sort(Tools.compareTiebreaker);
+
+        return playerTiebreakers;
     }
 }
