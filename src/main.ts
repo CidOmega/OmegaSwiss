@@ -12,9 +12,9 @@ export function setupApp() {
     let continueTournamentButton = $('#continueTournament');
 
     startTournamentButton.on('click', () => {
-        CollapseController.showRound();
         roundSection.show();
         rankingSection.show();
+        CollapseController.showRound();
 
         startTournament();
     });
