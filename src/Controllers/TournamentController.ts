@@ -54,7 +54,6 @@ function setupTournament() {
         endTournamentButton.on('click', () => {
             let activeRound = TournamentStorage.getRound();
             if (!activeRound.isCompleted()) {
-                // TODO force endTournament
                 incompleteRoundModal.modal('show')
                 return;
             }
@@ -98,6 +97,7 @@ function setupTournament() {
             roundCountDisplay.html(`Ronda ${tournament.roundCount}/${tournament.roundTotal}`);
         } else {
             roundCountDisplay.html(`Ronda extra ${tournament.roundCount - tournament.roundTotal}`);
+            CollapseController.toggleRanking(true);
         }
 
         renderRanking();
