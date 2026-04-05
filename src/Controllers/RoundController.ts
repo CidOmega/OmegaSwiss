@@ -13,6 +13,8 @@ export function setupRound() {
 
     let mainTable = $('#mainTable');
     let mainTableBody = mainTable.find('tbody');
+
+    let retreatSection = $('#retreatSection');
     let roundRetreatTableBody = $('#roundRetreatTable').find('tbody');
 
     if (initialize) {
@@ -131,6 +133,12 @@ export function setupRound() {
     }
 
     function renderRetreats(round: Round) {
+        if (round.retreats.length === 0) {
+            retreatSection.hide();
+            return;
+        }
+
+        retreatSection.show();
         roundRetreatTableBody.html('')
         for (let i = 0; i < round.retreats.length; i++) {
             let retreat = round.retreats[i];
