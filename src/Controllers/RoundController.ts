@@ -3,6 +3,7 @@ import {Round} from "../Models/Round.ts";
 import {MatchResultEnum} from "../Models/MatchResultEnum.ts";
 import {TournamentStorage} from "../Storage/TournamentStorage.ts";
 import {PlayerStatistics} from "../Models/PlayerStatistics.ts";
+import {Tools} from "../Tools.ts";
 
 let initialize = true;
 let drawIsDraw = false;
@@ -117,7 +118,7 @@ export function setupRound() {
             let match = round.matches[matchIndex];
             if (!!match) {
                 let playerRetreating = match.results.find(p => p.player.id === playerId);
-                if (!!playerRetreating && !round.retreats.find(r => r.id === playerId)) {
+                if (!!playerRetreating && !round.retreats.find(r => r.id === playerId) && playerId !== Tools.byeId) {
                     round.retreats.push(playerRetreating.player);
                 }
             }
