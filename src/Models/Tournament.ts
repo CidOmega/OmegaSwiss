@@ -115,7 +115,9 @@ export class Tournament {
             matches.push(getNewMatch(noRivalA, noRivalB));
         }
 
-        return new Round(matches);
+        let round = new Round(matches);
+        round.concedeBye();
+        return round;
 
         function getNewMatch(a: PlayerWithStatistics, b: PlayerWithStatistics): PlayerWithStatisticsPair {
             let players = [a, b].sort(Tools.comparePlayers);
