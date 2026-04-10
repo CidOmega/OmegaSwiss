@@ -3,6 +3,7 @@ import {Round} from "../Models/Round.ts";
 import {MatchResultEnum} from "../Models/MatchResultEnum.ts";
 import {TournamentStorage} from "../Storage/TournamentStorage.ts";
 import {PlayerStatistics} from "../Models/PlayerStatistics.ts";
+import {Tools} from "../Tools.ts";
 
 let initialize = true;
 let drawIsDraw = false;
@@ -13,16 +14,18 @@ export function setupRound() {
 
     let mainTable = $('#mainTable');
     let mainTableBody = mainTable.find('tbody');
+
+    let retreatSection = $('#retreatSection');
     let roundRetreatTableBody = $('#roundRetreatTable').find('tbody');
 
     if (initialize) {
         setDrawButton.on('click', function () {
             drawIsDraw = true;
-            renderSwapDraw()
+            renderButtons()
         });
         setDoubleKoButton.on('click', function () {
             drawIsDraw = false;
-            renderSwapDraw();
+            renderButtons();
         });
         initialize = false;
     }
@@ -32,7 +35,7 @@ export function setupRound() {
         renderTable(round);
         setMatchStatus(round);
         setButtonsEvents();
-        renderSwapDraw();
+        renderButtons();
         renderRetreats(round);
     }
 
@@ -115,22 +118,32 @@ export function setupRound() {
             let match = round.matches[matchIndex];
             if (!!match) {
                 let playerRetreating = match.results.find(p => p.player.id === playerId);
-                if (!!playerRetreating && !round.retreats.find(r => r.id === playerId)) {
+                if (!!playerRetreating && !round.retreats.find(r => r.id === playerId) && playerId !== Tools.byeId) {
                     round.retreats.push(playerRetreating.player);
                 }
             }
         }));
     }
 
-    function renderSwapDraw() {
+    function renderButtons() {
         setDrawButton.toggle(!drawIsDraw);
         setDoubleKoButton.toggle(drawIsDraw);
 
         mainTable.find('.btn-draw').toggle(drawIsDraw);
         mainTable.find('.btn-double-ko').toggle(!drawIsDraw);
+
+        $('.bye-row')
+            .find('.btn-win,.btn-draw,.btn-double-ko,.btn-retreat-bye')
+            .prop('disabled', true);
     }
 
     function renderRetreats(round: Round) {
+        if (round.retreats.length === 0) {
+            retreatSection.hide();
+            return;
+        }
+
+        retreatSection.show();
         roundRetreatTableBody.html('')
         for (let i = 0; i < round.retreats.length; i++) {
             let retreat = round.retreats[i];
@@ -166,8 +179,13 @@ export function setupRound() {
     }
 
     function getMatchRowHtml(player1: PlayerWithStatistics, player2: PlayerWithStatistics, matchIndex: number) {
+        let rowClass = '';
+        if (Tools.containsBye([player1, player2])) {
+            rowClass += ' bye-row'
+        }
+
         return `
-    <tr class="match-row">
+    <tr class="match-row ${rowClass}">
     <th scope="row" class="text-center">${matchIndex + 1}</th>
     <td data-related="${player1.id}" class="player-cell">
         <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-retreat btn btn-secondary">Retirada</button>
@@ -179,7 +197,7 @@ export function setupRound() {
         <button type="button" data-related="${matchIndex}" class="btn-double-ko btn btn-danger col-12 text-nowrap">Doble KO</button>
     </td>
     <td data-related="${player2.id}" class="player-cell">
-        <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-retreat btn btn-secondary">Retirada</button>
+        <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-retreat btn-retreat-bye btn btn-secondary">Retirada</button>
         ${player2.name} ${player2.statistics.getKda()}
         <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>

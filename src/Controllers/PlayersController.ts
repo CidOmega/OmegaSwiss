@@ -52,7 +52,7 @@ export function setupPlayersController() {
                 <td>${player.name}</td>
                 <th scope="row">
                     <button type="button" class="btn-delete-player btn btn-danger" data-related="${i}">
-                        D
+                        <i class="bi bi-trash"></i>
                     </button>
                 </th>
             </tr>

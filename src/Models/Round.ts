@@ -52,4 +52,15 @@ export class Round {
 
         return true;
     }
+
+    concedeBye() {
+        let lastMatch = this.matches[this.matches.length - 1];
+        if (lastMatch.results[0].player.id === Tools.byeId) {
+            lastMatch.results[0].result = MatchResultEnum.Lose;
+            lastMatch.results[1].result = MatchResultEnum.Win;
+        } else if (lastMatch.results[1].player.id === Tools.byeId) {
+            lastMatch.results[0].result = MatchResultEnum.Win;
+            lastMatch.results[1].result = MatchResultEnum.Lose;
+        }
+    }
 }

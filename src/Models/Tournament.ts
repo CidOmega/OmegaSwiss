@@ -96,11 +96,6 @@ export class Tournament {
             } else {
                 matches.push(getNewMatch(playerPointer.player, rival.player))
 
-                // TODO estos dos jugadores han dejado de estar disponibles,
-                //  asi que "availableRivals" de los jugadores restantes hay que actualizarlo
-                //  para que si a alguien le quedan 2 el 2º lo pesque.
-                //  ¿Que pasa si alguien tiene 2 disponibles y se emparejan entre ellos?
-
                 Tools.deleteFromArray(playersWithAvailableRivals, rival);
 
                 // playerPointer and rival is not available for the rest of the pairing
@@ -120,7 +115,9 @@ export class Tournament {
             matches.push(getNewMatch(noRivalA, noRivalB));
         }
 
-        return new Round(matches);
+        let round = new Round(matches);
+        round.concedeBye();
+        return round;
 
         function getNewMatch(a: PlayerWithStatistics, b: PlayerWithStatistics): PlayerWithStatisticsPair {
             let players = [a, b].sort(Tools.comparePlayers);
