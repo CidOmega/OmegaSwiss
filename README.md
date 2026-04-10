@@ -1,2 +1,3 @@
 # OmegaSwiss
-Intento de hacer algo.
+
+Aplicacion de torneo suizo con opcion de doble derrota.
