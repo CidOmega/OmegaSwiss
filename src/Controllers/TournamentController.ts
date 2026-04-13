@@ -121,11 +121,11 @@ function setupTournament() {
                 lastClassification = classification;
             }
 
-            let row = getRankingRow(tiebreaker, classification);
+            let row = getRankingRow(tiebreaker, classification, !!tournament.retreats.find(p => p.id === tiebreaker.player.id));
             rankingTableBody.append(row)
         }
 
-        function getRankingRow(tiebreaker: Tiebreaker, classification: number) {
+        function getRankingRow(tiebreaker: Tiebreaker, classification: number, retreated: boolean) {
             let head = classification.toString();
 
             switch (classification) {
@@ -139,6 +139,8 @@ function setupTournament() {
                     head = '<i class="bi bi-3-circle-fill" style="color: #CD7F32">';
                     break;
             }
+            
+            let dropHtml = retreated ? ' <span class="badge text-bg-info float-end">Drop</span>' : '';
 
             let toShowTiebreaker =
                 tiebreaker.matchPoints * 1000 * 1000 * 1000
@@ -149,7 +151,7 @@ function setupTournament() {
             return `
     <tr>
     <th scope="row" class="text-center">${head}</th>
-    <td title="vs\n${tiebreaker.rivalNames.join('\n')}">${tiebreaker.player.name}</td>
+    <td title="vs\n${tiebreaker.rivalNames.join('\n')}">${tiebreaker.player.name}${dropHtml}</td>
     <td>${tiebreaker.kda}</td>
     <td title="${titleTiebreaker}">${toShowTiebreaker.toLocaleString('en-us')}</td>
     </tr>
