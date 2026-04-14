@@ -119,6 +119,7 @@
                     </button>
                 </div>
                 <div class="col-2 text-start">
+                    <button id="swapEditingTables" type="button" class="btn btn-primary text-nowrap"><i class="bi bi-pencil-square"></i> Editar</button>
                 </div>
                 <div class="col-2 text-start">
                     <button id="rerollRound" type="button" class="btn btn-primary text-nowrap"><i class="bi bi-dice-6-fill"></i> Reroll</button>
@@ -144,7 +145,7 @@
                 </div>
             </div>
             <div class="row">
-                <table id="mainTable" class="table table-striped table-bordered">
+                <table id="mainTable" class="table table-striped table-bordered" data-editing-tables="false">
                     <thead>
                     <tr class="table-dark">
                         <th scope="col" class="col"></th>

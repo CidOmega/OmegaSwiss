@@ -27,13 +27,24 @@ function setupTournament() {
     let roundCountDisplay = $('#roundCountDisplay');
 
     let rerollRound = $('#rerollRound');
+    let swapEditingTables = $('#swapEditingTables');
     let endRound = $('#endRound');
     let incompleteRoundModal = $('#incompleteRoundModal');
     let endTournamentButton = $('#endTournament');
 
+    let mainTable = $('#mainTable');
     let rankingTableBody = $('#rankingTable').find('tbody');
 
     if (initializeUi) {
+        swapEditingTables.on('click', () => {
+            let actual = mainTable.attr('data-editing-tables');
+            if (actual === 'true') {
+                mainTable.attr('data-editing-tables', 'false');
+            } else {
+                mainTable.attr('data-editing-tables', 'true');
+            }
+        });
+
         rerollRound.on('click', newRound);
 
         endRound.on('click', () => {
@@ -139,7 +150,7 @@ function setupTournament() {
                     head = '<i class="bi bi-3-circle-fill" style="color: #CD7F32">';
                     break;
             }
-            
+
             let dropHtml = retreated ? ' <span class="badge text-bg-info float-end">Drop</span>' : '';
 
             let toShowTiebreaker =

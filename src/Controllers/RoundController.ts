@@ -133,7 +133,7 @@ export function setupRound() {
         mainTable.find('.btn-double-ko').toggle(!drawIsDraw);
 
         $('.bye-row')
-            .find('.btn-win,.btn-draw,.btn-double-ko,.btn-retreat-bye')
+            .find('.btn-win,.btn-draw,.btn-double-ko,.btn-bye')
             .prop('disabled', true);
     }
 
@@ -189,6 +189,7 @@ export function setupRound() {
     <th scope="row" class="text-center">${matchIndex + 1}</th>
     <td data-related="${player1.id}" class="player-cell">
         <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-retreat btn btn-secondary">Retirada</button>
+        <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-swap btn btn-secondary"><i class="bi bi-shuffle"></i></button>
         ${player1.name} ${player1.statistics.getKda()}
         <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>
@@ -197,7 +198,8 @@ export function setupRound() {
         <button type="button" data-related="${matchIndex}" class="btn-double-ko btn btn-danger col-12 text-nowrap">Doble KO</button>
     </td>
     <td data-related="${player2.id}" class="player-cell">
-        <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-retreat btn-retreat-bye btn btn-secondary">Retirada</button>
+        <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-retreat btn-bye btn btn-secondary">Retirada</button>
+        <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-swap btn-bye btn btn-secondary"><i class="bi bi-shuffle"></i></button>
         ${player2.name} ${player2.statistics.getKda()}
         <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>

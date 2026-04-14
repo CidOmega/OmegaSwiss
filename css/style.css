@@ -13,3 +13,19 @@
 [aria-expanded="false"] .hide-on-expanded {
     display: unset;
 }
+
+table[data-editing-tables="true"] .btn:not(.btn-swap) {
+    display: none;
+}
+
+table[data-editing-tables="true"] .btn-swap {
+    display: unset;
+}
+
+table[data-editing-tables="false"] .btn:not(.btn-swap) {
+    display: unset;
+}
+
+table[data-editing-tables="false"] .btn-swap {
+    display: none;
+}
