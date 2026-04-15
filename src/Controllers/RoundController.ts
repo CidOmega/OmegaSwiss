@@ -126,7 +126,6 @@ export function setupRound() {
             return true;
         }));
 
-        // TODO si pulso el icono vale berga
         mainTableBody.find('.btn-swap').on('click', modifyRoundGenerator((button, round) => {
             let playerId = button.attr('data-related') ?? "X";
             let matchIndex = Number.parseInt(button.attr('data-related-match') ?? "X");
@@ -198,8 +197,8 @@ export function setupRound() {
                 }
             }
 
-            let doSave = modifyRound(button, round);
-            if (doSave) {
+            let doSaveAndRender = modifyRound(button, round);
+            if (doSaveAndRender) {
                 TournamentStorage.saveRound();
                 render();
             }
