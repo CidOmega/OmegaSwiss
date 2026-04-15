@@ -1,7 +1,4 @@
-[aria-expanded="true"] .show-on-expanded {
-    display: unset;
-}
-
+/* collapse arrows */
 [aria-expanded="true"] .hide-on-expanded {
     display: none;
 }
@@ -10,6 +7,30 @@
     display: none;
 }
 
-[aria-expanded="false"] .hide-on-expanded {
-    display: unset;
+/* Draw/Double ko visibility buttons */
+/* swap style */
+[data-draw-is-draw="true"] #swapDrawDraw {
+    display: none;
+}
+
+[data-draw-is-draw="false"] #swapDrawDoubleKo {
+    display: none;
+}
+
+/* action */
+[data-draw-is-draw="true"] .btn-double-ko {
+    display: none;
+}
+
+[data-draw-is-draw="false"] .btn-draw {
+    display: none;
+}
+
+/* edit table visibility buttons */
+table[data-editing-tables="true"] .btn:not(.btn-swap) {
+    display: none;
+}
+
+table[data-editing-tables="false"] .btn-swap {
+    display: none;
 }

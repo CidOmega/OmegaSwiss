@@ -92,7 +92,7 @@
     </div>
 </div>
 
-<div id="roundSection" class="card" style="display: none;">
+<div id="roundSection" class="card" style="display: none;" data-draw-is-draw="false">
     <div class="navbar navbar-light bg-light" id="headingRound"
          data-bs-toggle="collapse" data-bs-target="#collapseRound"
          aria-expanded="true" aria-controls="collapseRound">
@@ -119,6 +119,7 @@
                     </button>
                 </div>
                 <div class="col-2 text-start">
+                    <button id="swapEditingTables" type="button" class="btn btn-primary text-nowrap"><i class="bi bi-pencil-square"></i> Editar</button>
                 </div>
                 <div class="col-2 text-start">
                     <button id="rerollRound" type="button" class="btn btn-primary text-nowrap"><i class="bi bi-dice-6-fill"></i> Reroll</button>
@@ -131,12 +132,10 @@
                             </div>
                         </div>
                         <div class="col-12 col-lg-6 text-start">
-                            <button id="swapDrawDraw" type="button" class="btn btn-warning text-nowrap"
-                                    style="display: none">
+                            <button id="swapDrawDraw" type="button" class="btn btn-warning text-nowrap">
                                 Empate
                             </button>
-                            <button id="swapDrawDoubleKo" type="button" class="btn btn-danger text-nowrap"
-                                    style="display: none">
+                            <button id="swapDrawDoubleKo" type="button" class="btn btn-danger text-nowrap">
                                 Doble KO
                             </button>
                         </div>
@@ -144,7 +143,7 @@
                 </div>
             </div>
             <div class="row">
-                <table id="mainTable" class="table table-striped table-bordered">
+                <table id="mainTable" class="table table-striped table-bordered" data-editing-tables="false">
                     <thead>
                     <tr class="table-dark">
                         <th scope="col" class="col"></th>

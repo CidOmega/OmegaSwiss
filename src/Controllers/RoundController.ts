@@ -6,11 +6,16 @@ import {PlayerStatistics} from "../Models/PlayerStatistics.ts";
 import {Tools} from "../Tools.ts";
 
 let initialize = true;
-let drawIsDraw = false;
+let swaping: { matchIndex: number, playerIndex: number } | null = null;
 
 export function setupRound() {
+    swaping = null;
+
+    let roundSection = $('#roundSection');
     let setDrawButton = $('#swapDrawDraw');
     let setDoubleKoButton = $('#swapDrawDoubleKo');
+
+    let swapEditingTables = $('#swapEditingTables');
 
     let mainTable = $('#mainTable');
     let mainTableBody = mainTable.find('tbody');
@@ -19,13 +24,22 @@ export function setupRound() {
     let roundRetreatTableBody = $('#roundRetreatTable').find('tbody');
 
     if (initialize) {
+        swapEditingTables.on('click', () => {
+            let actual = mainTable.attr('data-editing-tables');
+            if (actual === 'true') {
+                mainTable.attr('data-editing-tables', 'false');
+                swaping = null;
+                render();
+            } else {
+                mainTable.attr('data-editing-tables', 'true');
+            }
+        });
+
         setDrawButton.on('click', function () {
-            drawIsDraw = true;
-            renderButtons()
+            roundSection.attr('data-draw-is-draw', 'true');
         });
         setDoubleKoButton.on('click', function () {
-            drawIsDraw = false;
-            renderButtons();
+            roundSection.attr('data-draw-is-draw', 'false');
         });
         initialize = false;
     }
@@ -85,6 +99,7 @@ export function setupRound() {
                     result.result = MatchResultEnum.Draw;
                 }
             }
+            return true;
         }));
 
         mainTableBody.find('.btn-double-ko').on('click', modifyRoundGenerator((button, round) => {
@@ -95,6 +110,7 @@ export function setupRound() {
                     result.result = MatchResultEnum.Lose;
                 }
             }
+            return true;
         }));
 
         mainTableBody.find('.btn-win').on('click', modifyRoundGenerator((button, round) => {
@@ -110,6 +126,7 @@ export function setupRound() {
                     }
                 }
             }
+            return true;
         }));
 
         mainTableBody.find('.btn-retreat').on('click', modifyRoundGenerator((button, round) => {
@@ -122,18 +139,41 @@ export function setupRound() {
                     round.retreats.push(playerRetreating.player);
                 }
             }
+            return true;
+        }));
+
+        mainTableBody.find('.btn-swap').on('click', modifyRoundGenerator((button, round) => {
+            let playerId = button.attr('data-related') ?? "X";
+            let matchIndex = Number.parseInt(button.attr('data-related-match') ?? "X");
+            let match = round.matches[matchIndex];
+            if (!!match) {
+                let playerIndex = match.results.findIndex(p => p.player.id === playerId);
+                if (playerIndex !== -1) {
+                    if (!!swaping) {
+                        if (swaping.matchIndex !== matchIndex || swaping.playerIndex !== playerIndex) {
+                            // Swap on no same button.
+                            round.swapPlayers(swaping.matchIndex, swaping.playerIndex, matchIndex, playerIndex);
+                        }
+
+                        // Stop swaping in any case.
+                        swaping = null;
+
+                        return true;
+                    } else {
+                        swaping = {matchIndex: matchIndex, playerIndex: playerIndex};
+                        button.removeClass('btn-secondary')
+                        button.addClass('btn-primary active')
+                        button.parent().closest('td').addClass('table-active')
+                    }
+                }
+            }
+            return false;
         }));
     }
 
     function renderButtons() {
-        setDrawButton.toggle(!drawIsDraw);
-        setDoubleKoButton.toggle(drawIsDraw);
-
-        mainTable.find('.btn-draw').toggle(drawIsDraw);
-        mainTable.find('.btn-double-ko').toggle(!drawIsDraw);
-
         $('.bye-row')
-            .find('.btn-win,.btn-draw,.btn-double-ko,.btn-retreat-bye')
+            .find('.btn-win,.btn-draw,.btn-double-ko,.btn-bye')
             .prop('disabled', true);
     }
 
@@ -164,17 +204,29 @@ export function setupRound() {
         $('.btn-cancel-retreat').on('click', modifyRoundGenerator((button, round) => {
             let playerIndex = Number.parseInt(button.attr('data-related') ?? "X");
             round.retreats.splice(playerIndex, 1);
+            return true;
         }));
     }
 
-    function modifyRoundGenerator(modifyRound: (button: JQuery<HTMLElement>, round: Round) => void)
+    function modifyRoundGenerator(modifyRound: (button: JQuery<HTMLElement>, round: Round) => boolean)
         : (e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) => void {
         return (e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) => {
             let round = TournamentStorage.getRound();
             let button = $(e.target);
-            modifyRound(button, round);
-            TournamentStorage.saveRound();
-            render();
+            while (!button.is('button')) {
+                // Some icon or inner element was clicked, search upwards.
+                button = button.parent();
+                if (button.length === 0) {
+                    // No button found.
+                    return;
+                }
+            }
+
+            let doSaveAndRender = modifyRound(button, round);
+            if (doSaveAndRender) {
+                TournamentStorage.saveRound();
+                render();
+            }
         };
     }
 
@@ -189,6 +241,7 @@ export function setupRound() {
     <th scope="row" class="text-center">${matchIndex + 1}</th>
     <td data-related="${player1.id}" class="player-cell">
         <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-retreat btn btn-secondary">Retirada</button>
+        <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-swap btn btn-secondary"><i class="bi bi-shuffle"></i></button>
         ${player1.name} ${player1.statistics.getKda()}
         <button type="button" data-related="${player1.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>
@@ -197,7 +250,8 @@ export function setupRound() {
         <button type="button" data-related="${matchIndex}" class="btn-double-ko btn btn-danger col-12 text-nowrap">Doble KO</button>
     </td>
     <td data-related="${player2.id}" class="player-cell">
-        <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-retreat btn-retreat-bye btn btn-secondary">Retirada</button>
+        <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-retreat btn-bye btn btn-secondary">Retirada</button>
+        <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-swap btn-bye btn btn-secondary"><i class="bi bi-shuffle"></i></button>
         ${player2.name} ${player2.statistics.getKda()}
         <button type="button" data-related="${player2.id}" data-related-match="${matchIndex}" class="btn-win btn btn-success float-end">Victoria</button>
     </td>
