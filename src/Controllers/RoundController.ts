@@ -6,9 +6,9 @@ import {PlayerStatistics} from "../Models/PlayerStatistics.ts";
 import {Tools} from "../Tools.ts";
 
 let initialize = true;
-let drawIsDraw = false;
 
 export function setupRound() {
+    let roundSection = $('#roundSection');
     let setDrawButton = $('#swapDrawDraw');
     let setDoubleKoButton = $('#swapDrawDoubleKo');
 
@@ -20,12 +20,10 @@ export function setupRound() {
 
     if (initialize) {
         setDrawButton.on('click', function () {
-            drawIsDraw = true;
-            renderButtons()
+            roundSection.attr('data-draw-is-draw', 'true');
         });
         setDoubleKoButton.on('click', function () {
-            drawIsDraw = false;
-            renderButtons();
+            roundSection.attr('data-draw-is-draw', 'false');
         });
         initialize = false;
     }
@@ -150,12 +148,6 @@ export function setupRound() {
     }
 
     function renderButtons() {
-        setDrawButton.toggle(!drawIsDraw);
-        setDoubleKoButton.toggle(drawIsDraw);
-
-        mainTable.find('.btn-draw').toggle(drawIsDraw);
-        mainTable.find('.btn-double-ko').toggle(!drawIsDraw);
-
         $('.bye-row')
             .find('.btn-win,.btn-draw,.btn-double-ko,.btn-bye')
             .prop('disabled', true);
