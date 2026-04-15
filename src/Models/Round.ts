@@ -6,7 +6,6 @@ import {Tools} from "../Tools.ts";
 export class Round {
     matches: Match[];
     retreats: Player[];
-    swaping: { matchIndex: number, playerIndex: number } | null;
 
     constructor(matches: PlayerWithStatisticsPair[]) {
         this.matches = matches
@@ -34,14 +33,12 @@ export class Round {
                 ]
             }));
         this.retreats = [];
-        this.swaping = null;
     }
 
     static copy(other: Round): Round {
         let response = new Round([]);
         response.matches = other.matches;
         response.retreats = other.retreats;
-        response.swaping = other.swaping;
         return response;
     }
 
@@ -51,7 +48,6 @@ export class Round {
             result.result = MatchResultEnum.None;
         }
         this.retreats = [];
-        this.swaping = null;
 
         this.concedeBye();
     }

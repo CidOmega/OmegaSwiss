@@ -6,11 +6,16 @@ import {PlayerStatistics} from "../Models/PlayerStatistics.ts";
 import {Tools} from "../Tools.ts";
 
 let initialize = true;
+let swaping: { matchIndex: number, playerIndex: number } | null = null;
 
 export function setupRound() {
+    swaping = null;
+
     let roundSection = $('#roundSection');
     let setDrawButton = $('#swapDrawDraw');
     let setDoubleKoButton = $('#swapDrawDoubleKo');
+
+    let swapEditingTables = $('#swapEditingTables');
 
     let mainTable = $('#mainTable');
     let mainTableBody = mainTable.find('tbody');
@@ -19,6 +24,17 @@ export function setupRound() {
     let roundRetreatTableBody = $('#roundRetreatTable').find('tbody');
 
     if (initialize) {
+        swapEditingTables.on('click', () => {
+            let actual = mainTable.attr('data-editing-tables');
+            if (actual === 'true') {
+                mainTable.attr('data-editing-tables', 'false');
+                swaping = null;
+                render();
+            } else {
+                mainTable.attr('data-editing-tables', 'true');
+            }
+        });
+
         setDrawButton.on('click', function () {
             roundSection.attr('data-draw-is-draw', 'true');
         });
@@ -133,20 +149,21 @@ export function setupRound() {
             if (!!match) {
                 let playerIndex = match.results.findIndex(p => p.player.id === playerId);
                 if (playerIndex !== -1) {
-                    if (!!round.swaping) {
-                        if (round.swaping.matchIndex !== matchIndex || round.swaping.playerIndex !== playerIndex) {
+                    if (!!swaping) {
+                        if (swaping.matchIndex !== matchIndex || swaping.playerIndex !== playerIndex) {
                             // Swap on no same button.
-                            round.swap(round.swaping.matchIndex, round.swaping.playerIndex, matchIndex, playerIndex);
+                            round.swap(swaping.matchIndex, swaping.playerIndex, matchIndex, playerIndex);
                         }
 
                         // Stop swaping in any case.
-                        round.swaping = null;
+                        swaping = null;
 
                         return true;
                     } else {
-                        round.swaping = {matchIndex: matchIndex, playerIndex: playerIndex};
+                        swaping = {matchIndex: matchIndex, playerIndex: playerIndex};
                         button.removeClass('btn-secondary')
                         button.addClass('btn-primary active')
+                        button.parent().closest('td').addClass('table-active')
                     }
                 }
             }
