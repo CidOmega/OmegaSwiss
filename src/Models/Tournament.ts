@@ -9,41 +9,37 @@ import {MatchResultEnum} from "./MatchResultEnum.ts";
 
 export class Tournament {
     closed: boolean = false;
-    roundCount: number = 1;
     roundTotal: number;
-    allPlayerHistories: PlayerHistory[] = [];
-    retreats: Player[] = [];
-    // rounds: Round[] = [];
+    players: Player[];
+    rounds: Round[] = [];
 
     bye: PlayerWithStatistics = {id: Tools.byeId, name: 'Bye', statistics: new PlayerStatistics(0, 0, 0)};
 
     constructor(players: Player[]) {
-        for (let player of players) {
-            this.allPlayerHistories.push(new PlayerHistory(player));
-        }
+        this.players = [...players];
         this.roundTotal = Tools.getRequiredRounds(players.length);
     }
 
     static copy(other: Tournament): Tournament {
-        let response = new Tournament([]);
-
+        let response = new Tournament(other.players);
         response.closed = other.closed;
-        response.roundCount = other.roundCount;
-        response.roundTotal = other.roundTotal;
-        response.allPlayerHistories = other.allPlayerHistories.map(ph => PlayerHistory.copy(ph));
-        response.retreats = other.retreats;
+        response.rounds = other.rounds.map(r => Round.copy(r));
 
         return response;
     }
 
+    getRoundCount(): number {
+        return this.rounds.length + 1;
+    }
+
+    getRetreats(): Player[] {
+        return this.rounds.flatMap(r => r.retreats);
+    }
+
     getActivePlayers(): PlayerHistory[] {
-        let activePlayers: PlayerHistory[] = [];
-        for (let playerHistory of this.allPlayerHistories) {
-            if (!this.retreats.find(r => r.id === playerHistory.player.id)) {
-                activePlayers.push(playerHistory);
-            }
-        }
-        return activePlayers;
+        let retreats = this.getRetreats();
+        return this.getAllPlayerHistories()
+            .filter(ph => retreats.find(r => r.id === ph.player.id));
     }
 
     getByeWithRivals(): PlayerMatchmakingInfo {
@@ -174,10 +170,12 @@ export class Tournament {
         return playersTree;
     }
 
-    digestRound(round: Round) {
-        for (let match of round.matches) {
+    getAllPlayerHistories(): PlayerHistory[] {
+        let allPlayerHistories: PlayerHistory[] = this.players.map(p => new PlayerHistory(p));
+
+        for (let match of this.rounds.flatMap(r => r.matches)) {
             for (let result of match.results) {
-                let playerHistory = this.allPlayerHistories
+                let playerHistory = allPlayerHistories
                     .filter(ph => ph.player.id === result.player.id)[0];
                 if (!playerHistory) {
                     continue; // Bye
@@ -190,12 +188,13 @@ export class Tournament {
             }
         }
 
-        this.retreats.push(...round.retreats);
+        return allPlayerHistories;
     }
 
     getRanking(): Tiebreaker[] {
+        let allPlayerHistories = this.getAllPlayerHistories();
         let playerTiebreakersDictionary: { [id: string]: Tiebreaker } =
-            Object.fromEntries(this.allPlayerHistories.map(ph => {
+            Object.fromEntries(allPlayerHistories.map(ph => {
                 let statistics = ph.getStatistics();
                 return [ph.player.id, {
                     player: ph.player,
@@ -209,7 +208,7 @@ export class Tournament {
             }));
 
         let playerTiebreakers: Tiebreaker[] = []
-        for (let ph of this.allPlayerHistories) {
+        for (let ph of allPlayerHistories) {
             let omwpSum = 0;
             let rivalCount = 0;
             let binary = 0;
@@ -231,7 +230,7 @@ export class Tournament {
             tiebreaker.opponentsMatchWinPercentage = omwpSum / Math.max(1, rivalCount);
 
             // Power the binary to hide simplicity...
-            let pow = Math.max(1, 7 - this.roundCount);
+            let pow = Math.max(1, 7 - this.getRoundCount());
             tiebreaker.binary = Math.pow(binary, pow);
 
             playerTiebreakers.push(tiebreaker);
