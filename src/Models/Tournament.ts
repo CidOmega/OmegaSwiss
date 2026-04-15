@@ -39,7 +39,7 @@ export class Tournament {
     getActivePlayers(): PlayerHistory[] {
         let retreats = this.getRetreats();
         return this.getAllPlayerHistories()
-            .filter(ph => retreats.find(r => r.id === ph.player.id));
+            .filter(ph => !retreats.find(r => r.id === ph.player.id));
     }
 
     getByeWithRivals(): PlayerMatchmakingInfo {
