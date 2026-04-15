@@ -73,7 +73,7 @@ export class Round {
         return true;
     }
 
-    swap(matchIndexA: number, playerIndexA: number, matchIndexB: number, playerIndexB: number) {
+    swapPlayers(matchIndexA: number, playerIndexA: number, matchIndexB: number, playerIndexB: number) {
         let swap = this.matches[matchIndexA].results[playerIndexA];
         this.matches[matchIndexA].results[playerIndexA] = this.matches[matchIndexB].results[playerIndexB];
         this.matches[matchIndexB].results[playerIndexB] = swap;

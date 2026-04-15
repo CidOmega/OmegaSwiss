@@ -152,7 +152,7 @@ export function setupRound() {
                     if (!!swaping) {
                         if (swaping.matchIndex !== matchIndex || swaping.playerIndex !== playerIndex) {
                             // Swap on no same button.
-                            round.swap(swaping.matchIndex, swaping.playerIndex, matchIndex, playerIndex);
+                            round.swapPlayers(swaping.matchIndex, swaping.playerIndex, matchIndex, playerIndex);
                         }
 
                         // Stop swaping in any case.
