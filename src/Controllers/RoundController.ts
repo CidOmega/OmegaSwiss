@@ -85,6 +85,7 @@ export function setupRound() {
                     result.result = MatchResultEnum.Draw;
                 }
             }
+            return true;
         }));
 
         mainTableBody.find('.btn-double-ko').on('click', modifyRoundGenerator((button, round) => {
@@ -95,6 +96,7 @@ export function setupRound() {
                     result.result = MatchResultEnum.Lose;
                 }
             }
+            return true;
         }));
 
         mainTableBody.find('.btn-win').on('click', modifyRoundGenerator((button, round) => {
@@ -110,6 +112,7 @@ export function setupRound() {
                     }
                 }
             }
+            return true;
         }));
 
         mainTableBody.find('.btn-retreat').on('click', modifyRoundGenerator((button, round) => {
@@ -122,6 +125,27 @@ export function setupRound() {
                     round.retreats.push(playerRetreating.player);
                 }
             }
+            return true;
+        }));
+
+        // TODO si pulso el icono vale berga
+        mainTableBody.find('.btn-swap').on('click', modifyRoundGenerator((button, round) => {
+            let playerId = button.attr('data-related') ?? "X";
+            let matchIndex = Number.parseInt(button.attr('data-related-match') ?? "X");
+            let match = round.matches[matchIndex];
+            if (!!match) {
+                let playerIndex = match.results.findIndex(p => p.player.id === playerId);
+                if (playerIndex !== -1) {
+                    if (!!round.swaping) {
+                        round.swap(round.swaping.matchIndex, round.swaping.playerIndex, matchIndex, playerIndex);
+                        round.reset();
+                        return true;
+                    } else {
+                        round.swaping = {matchIndex: matchIndex, playerIndex: playerIndex};
+                    }
+                }
+            }
+            return false;
         }));
     }
 
@@ -164,17 +188,29 @@ export function setupRound() {
         $('.btn-cancel-retreat').on('click', modifyRoundGenerator((button, round) => {
             let playerIndex = Number.parseInt(button.attr('data-related') ?? "X");
             round.retreats.splice(playerIndex, 1);
+            return true;
         }));
     }
 
-    function modifyRoundGenerator(modifyRound: (button: JQuery<HTMLElement>, round: Round) => void)
+    function modifyRoundGenerator(modifyRound: (button: JQuery<HTMLElement>, round: Round) => boolean)
         : (e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) => void {
         return (e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) => {
             let round = TournamentStorage.getRound();
             let button = $(e.target);
-            modifyRound(button, round);
-            TournamentStorage.saveRound();
-            render();
+            while (!button.is('button')) {
+                // Some icon or inner element was clicked, search upwards.
+                button = button.parent();
+                if (button.length === 0) {
+                    // No button found.
+                    return;
+                }
+            }
+
+            let doSave = modifyRound(button, round);
+            if (doSave) {
+                TournamentStorage.saveRound();
+                render();
+            }
         };
     }
 
