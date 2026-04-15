@@ -139,7 +139,7 @@ function setupTournament() {
                     head = '<i class="bi bi-3-circle-fill" style="color: #CD7F32">';
                     break;
             }
-
+            
             let dropHtml = retreated ? ' <span class="badge text-bg-info float-end">Drop</span>' : '';
 
             let toShowTiebreaker =
