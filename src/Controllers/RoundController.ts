@@ -134,11 +134,19 @@ export function setupRound() {
                 let playerIndex = match.results.findIndex(p => p.player.id === playerId);
                 if (playerIndex !== -1) {
                     if (!!round.swaping) {
-                        round.swap(round.swaping.matchIndex, round.swaping.playerIndex, matchIndex, playerIndex);
-                        round.reset();
+                        if (round.swaping.matchIndex !== matchIndex || round.swaping.playerIndex !== playerIndex) {
+                            // Swap on no same button.
+                            round.swap(round.swaping.matchIndex, round.swaping.playerIndex, matchIndex, playerIndex);
+                        }
+
+                        // Stop swaping in any case.
+                        round.swaping = null;
+
                         return true;
                     } else {
                         round.swaping = {matchIndex: matchIndex, playerIndex: playerIndex};
+                        button.removeClass('btn-secondary')
+                        button.addClass('btn-primary active')
                     }
                 }
             }

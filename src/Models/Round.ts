@@ -45,7 +45,7 @@ export class Round {
         return response;
     }
 
-    reset() {
+    resetAll() {
         let results = this.matches.flatMap(m => m.results);
         for (let result of results) {
             result.result = MatchResultEnum.None;
@@ -53,6 +53,16 @@ export class Round {
         this.retreats = [];
         this.swaping = null;
 
+        this.concedeBye();
+    }
+
+    resetMatch(matchIndex: number) {
+        let results = this.matches[matchIndex].results;
+        for (let result of results) {
+            result.result = MatchResultEnum.None;
+        }
+
+        // Just in case...
         this.concedeBye();
     }
 
@@ -71,6 +81,9 @@ export class Round {
         let swap = this.matches[matchIndexA].results[playerIndexA];
         this.matches[matchIndexA].results[playerIndexA] = this.matches[matchIndexB].results[playerIndexB];
         this.matches[matchIndexB].results[playerIndexB] = swap;
+
+        this.resetMatch(matchIndexA);
+        this.resetMatch(matchIndexB);
     }
 
     concedeBye() {
