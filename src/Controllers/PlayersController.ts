@@ -61,7 +61,7 @@ export function setupPlayersController() {
         }
 
         $('button.btn-delete-player').on('click', (e) => {
-            let playerIndex = Number.parseInt($(e.target).attr('data-related') ?? "X");
+            let playerIndex = Number.parseInt($(e.currentTarget).attr('data-related') ?? "X");
             PlayerStorage.DeletePlayerByIndex(playerIndex);
             updatedPlayers();
         })

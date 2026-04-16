@@ -1,45 +1,72 @@
 import {Tournament} from "../Models/Tournament.ts";
-import {Round} from "../Models/Round.ts";
 
-let tournamentCache: Tournament | null = null;
-let roundCache: Round | null = null;
-const keyTournament = 'tournament';
-const keyRound = 'round';
-export const TournamentStorage = {
-    getTournament(): Tournament {
-        if (!tournamentCache) {
-            let tournamentText = window.localStorage.getItem(keyTournament);
+
+export abstract class TournamentStorage {
+    static urlKey = 'tId';
+    private static keyTournamentStart = 'tournament';
+
+    private static tournamentId = new URLSearchParams(window.location.search).get(TournamentStorage.urlKey)
+        ?? Date.now().toString();
+    private static storageKey = TournamentStorage.getStorageKey(TournamentStorage.tournamentId);
+
+    private static tournamentCache: Tournament | null = null;
+
+    static getTournament(): Tournament {
+        if (!TournamentStorage.tournamentCache) {
+            let tournamentText = window.localStorage.getItem(TournamentStorage.storageKey);
             if (!tournamentText) {
                 let t = new Tournament([]);
                 t.closed = true;
                 return t;
             }
-            let baseTournament: Tournament = JSON.parse(tournamentText);
-            tournamentCache = Tournament.copy(baseTournament)
+            TournamentStorage.tournamentCache = TournamentStorage.parseTournament(tournamentText);
         }
-        return tournamentCache;
-    },
-    getRound(): Round {
-        if (!roundCache) {
-            let roundText = window.localStorage.getItem(keyRound);
-            if (!roundText) {
-                return new Round([]);
+        return TournamentStorage.tournamentCache;
+    }
+
+    static saveTournament(tournament: Tournament | null = null) {
+        let t = tournament ?? TournamentStorage.tournamentCache ?? new Tournament([]);
+        TournamentStorage.tournamentCache = t;
+        window.localStorage.setItem(TournamentStorage.getStorageKey(t.createdAt.getTime().toString()), JSON.stringify(TournamentStorage.tournamentCache));
+    }
+
+    static getAllTournaments(): { tId: string, tournament: Tournament }[] {
+        let response: { tId: string, tournament: Tournament }[] = [];
+
+        let keys = TournamentStorage.getAllTournamentKeys();
+        for (let key of keys) {
+            let tournamentText = window.localStorage.getItem(key);
+            if (!tournamentText) {
+                continue;
             }
-            let baseRound: Round = JSON.parse(roundText);
-            roundCache = Round.copy(baseRound)
+            let tournament = TournamentStorage.parseTournament(tournamentText);
+            response.push({tId: key.split('-')[1], tournament: tournament});
         }
-        return roundCache;
-    },
-    saveTournament(tournament: Tournament | null = null) {
-        tournamentCache = tournament ?? tournamentCache;
-        window.localStorage.setItem(keyTournament, JSON.stringify(tournamentCache));
-    },
-    saveRound(round: Round | null = null) {
-        roundCache = round ?? roundCache;
-        window.localStorage.setItem(keyRound, JSON.stringify(roundCache));
-    },
-    deleteAll() {
-        window.localStorage.removeItem(keyTournament);
-        window.localStorage.removeItem(keyRound);
-    },
-};
+
+        return response;
+    }
+
+    static deleteByTournamentId(tId: string) {
+        window.localStorage.removeItem(TournamentStorage.getStorageKey(tId));
+    }
+
+    static deleteAll() {
+        TournamentStorage.getAllTournamentKeys().forEach(key => window.localStorage.removeItem(key));
+    }
+
+    private static getStorageKey(tId: string) {
+        return `${TournamentStorage.keyTournamentStart}-${tId}`;
+    }
+
+    private static parseTournament(tournamentText: string) {
+        let baseTournament: Tournament = JSON.parse(tournamentText);
+        return Tournament.copy(baseTournament);
+    }
+
+    private static getAllTournamentKeys() {
+        return Object.keys(window.localStorage)
+            .filter(key => key.startsWith(TournamentStorage.keyTournamentStart))
+            .sort()
+            .reverse();
+    }
+}

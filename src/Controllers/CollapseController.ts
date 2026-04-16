@@ -1,40 +1,55 @@
 import {Collapse} from "bootstrap";
 
-export const CollapseController = {
-    togglePlayers(toggle: boolean | undefined = undefined) {
-        toggleElement('collapsePlayers', toggle);
-    },
-    toggleRound(toggle: boolean | undefined = undefined) {
-        toggleElement('collapseRound', toggle);
-    },
-    toggleRanking(toggle: boolean | undefined = undefined) {
-        toggleElement('collapseRanking', toggle);
-    },
-    showPlayers() {
-        this.togglePlayers(true);
-        this.toggleRound(false);
-        this.toggleRanking(false);
-    },
-    showRound() {
-        this.togglePlayers(false);
-        this.toggleRound(true);
-        this.toggleRanking(false);
-    },
-    showRanking() {
-        this.togglePlayers(false);
-        this.toggleRound(false);
-        this.toggleRanking(true);
-    },
-}
+export abstract class CollapseController {
+    // Index
+    static togglePlayers(toggle: boolean | undefined = undefined) {
+        CollapseController.toggleElement('collapsePlayers', toggle);
+    }
 
-function toggleElement(elementId: string, toggle: boolean | undefined = undefined) {
-    let element = document.getElementById(elementId)!;
-    let collapse = Collapse.getOrCreateInstance(element, {toggle: false});
-    if (toggle === undefined) {
-        collapse.toggle();
-    } else if (toggle) {
-        collapse.show();
-    } else {
-        collapse.hide();
+    static toggleTournaments(toggle: boolean | undefined = undefined) {
+        CollapseController.toggleElement('collapseTournaments', toggle);
+    }
+
+    static showPlayers() {
+        CollapseController.togglePlayers(true);
+        CollapseController.toggleTournaments(false);
+    }
+
+    static showTournaments() {
+        CollapseController.togglePlayers(false);
+        CollapseController.toggleTournaments(true);
+    }
+
+    // Run Tournament
+    static toggleRound(toggle: boolean | undefined = undefined) {
+        CollapseController.toggleElement('collapseRound', toggle);
+    }
+
+    static toggleRanking(toggle: boolean | undefined = undefined) {
+        CollapseController.toggleElement('collapseRanking', toggle);
+    }
+
+    static showRound() {
+        CollapseController.toggleRound(true);
+        CollapseController.toggleRanking(false);
+    }
+
+    static showRanking() {
+        CollapseController.toggleRound(false);
+        CollapseController.toggleRanking(true);
+    }
+
+    // Master
+    static toggleElement(elementId: string, toggle: boolean | undefined = undefined) {
+        let element = document.getElementById(elementId)!;
+        let collapse = Collapse.getOrCreateInstance(element, {toggle: false});
+        if (toggle === undefined) {
+            collapse.toggle();
+        } else if (toggle) {
+            collapse.show();
+        } else {
+            collapse.hide();
+        }
     }
 }
+
