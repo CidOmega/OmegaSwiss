@@ -25,7 +25,12 @@ export function setupIndex() {
     renderTournaments();
     setInterval(renderTournaments, 2500);
 
-    CollapseController.showPlayers();
+    let tournaments = TournamentStorage.getAllTournaments();
+    if (!!tournaments.find(t => !t.tournament.closed)) {
+        CollapseController.showTournaments();
+    } else {
+        CollapseController.showPlayers();
+    }
 
     function renderTournaments() {
         let tournamentsTableBody = $('#tournamentsTable').find('tbody');
