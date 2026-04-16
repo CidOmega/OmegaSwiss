@@ -30,13 +30,11 @@ export abstract class CollapseController {
     }
 
     static showRound() {
-        CollapseController.togglePlayers(false);
         CollapseController.toggleRound(true);
         CollapseController.toggleRanking(false);
     }
 
     static showRanking() {
-        CollapseController.togglePlayers(false);
         CollapseController.toggleRound(false);
         CollapseController.toggleRanking(true);
     }
