@@ -8,6 +8,7 @@ import {MatchResultEnum} from "./MatchResultEnum.ts";
 import {RoundFactory} from "./Factories/RoundFactory.ts";
 
 export class Tournament {
+    createdAt: Date = new Date();
     closed: boolean = false;
     roundTotal: number;
     players: Player[];
@@ -22,6 +23,8 @@ export class Tournament {
 
     static copy(other: Tournament): Tournament {
         let response = new Tournament(other.players);
+        // Stored as text...
+        response.createdAt = new Date(other.createdAt ?? 0);
         response.closed = other.closed;
         response.rounds = other.rounds.map(r => Round.copy(r));
         response.activeRound = Round.copy(other.activeRound);
