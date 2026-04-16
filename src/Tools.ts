@@ -1,13 +1,15 @@
 import {Player, PlayerWithStatistics} from "./Models/Player.ts";
 import {Tiebreaker} from "./Models/Tiebreaker.ts";
 
-export const Tools = {
-    byeId: 'X',
-    bye: {id: 'X', name: 'Bye' },
-    getRequiredRounds(playersLength: number) {
+export abstract class Tools {
+    static byeId = 'X';
+    static bye: Player = {id: 'X', name: 'Bye'};
+
+    static getRequiredRounds(playersLength: number) {
         return playersLength == 0 ? 0 : Math.ceil(Math.log2(playersLength));
-    },
-    comparePlayers(a: PlayerWithStatistics, b: PlayerWithStatistics, compareName: boolean = true): number {
+    }
+
+    static comparePlayers(a: PlayerWithStatistics, b: PlayerWithStatistics, compareName: boolean = true): number {
         // Bye always last.
         if (a.id === Tools.byeId) return +1;
         if (b.id === Tools.byeId) return -1;
@@ -18,11 +20,13 @@ export const Tools = {
         if (compareName && compare === 0) compare = a.name.localeCompare(b.name);
 
         return compare;
-    },
-    containsBye(players: Player[]): boolean {
+    }
+
+    static containsBye(players: Player[]): boolean {
         return players.filter(p => p.id === this.byeId).length !== 0;
-    },
-    shuffle<T>(array: T[]) {
+    }
+
+    static shuffle<T>(array: T[]) {
         let currentIndex = array.length;
 
         // While there remain elements to shuffle...
@@ -35,12 +39,14 @@ export const Tools = {
             // And swap it with the current element.
             [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
         }
-    },
-    deleteFromArray<T>(array: T[], element: T) {
+    }
+
+    static deleteFromArray<T>(array: T[], element: T) {
         let index = array.indexOf(element);
         array.splice(index, 1);
-    },
-    compareTiebreaker(a: Tiebreaker, b: Tiebreaker, compareName: boolean = true): number {
+    }
+
+    static compareTiebreaker(a: Tiebreaker, b: Tiebreaker, compareName: boolean = true): number {
         // Descending
         return b.matchPoints - a.matchPoints
             // Descending
@@ -49,5 +55,5 @@ export const Tools = {
             || b.binary - a.binary
             // Ascending
             || (compareName ? a.player.name.localeCompare(b.player.name) : 0);
-    },
+    }
 }
