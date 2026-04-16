@@ -5,6 +5,7 @@ import {setupRound} from "./RoundController.ts";
 import {Tiebreaker} from "../Models/Tiebreaker.ts";
 import {Tools} from "../Tools.ts";
 import {CollapseController} from "./CollapseController.ts";
+import {Round} from "../Models/Round.ts";
 
 let initializeUi = true;
 
@@ -26,6 +27,7 @@ export function continueTournament() {
 function setupTournament() {
     let roundCountDisplay = $('#roundCountDisplay');
 
+    let goBackRound = $('#goBackRound');
     let rerollRound = $('#rerollRound');
     let endRound = $('#endRound');
     let incompleteRoundModal = $('#incompleteRoundModal');
@@ -34,6 +36,18 @@ function setupTournament() {
     let rankingTableBody = $('#rankingTable').find('tbody');
 
     if (initializeUi) {
+        goBackRound.on('click', () => {
+            let tournament = TournamentStorage.getTournament();
+            if (tournament.rounds.length === 0) {
+                return;
+            }
+
+            let round = tournament.rounds.pop()!;
+            TournamentStorage.saveTournament(tournament);
+
+            setRound(round);
+        });
+
         rerollRound.on('click', newRound);
 
         endRound.on('click', () => {
@@ -44,8 +58,7 @@ function setupTournament() {
             }
 
             let tournament = TournamentStorage.getTournament();
-            tournament.digestRound(activeRound);
-            tournament.roundCount = tournament.roundCount + 1;
+            tournament.rounds.push(activeRound);
             TournamentStorage.saveTournament();
 
             newRound();
@@ -59,8 +72,7 @@ function setupTournament() {
             }
 
             let tournament = TournamentStorage.getTournament();
-            tournament.digestRound(activeRound);
-            tournament.roundCount = tournament.roundCount + 1;
+            tournament.rounds.push(activeRound);
             tournament.closed = true;
             TournamentStorage.saveTournament();
 
@@ -77,15 +89,21 @@ function setupTournament() {
     function newRound() {
         let tournament = TournamentStorage.getTournament();
         let newRound = tournament.getNextRound();
-        TournamentStorage.saveRound(newRound);
+        setRound(newRound);
+    }
+
+    function setRound(round: Round) {
+        TournamentStorage.saveRound(round);
         doRound();
-        renderRanking();
     }
 
     function doRound() {
         let tournament = TournamentStorage.getTournament();
+        let roundCount = tournament.getRoundCount();
 
-        if (tournament.roundCount < tournament.roundTotal) {
+        goBackRound.toggle(!!tournament.rounds.length)
+
+        if (roundCount < tournament.roundTotal) {
             endRound.text('Terminar ronda');
             endTournamentButton.hide();
         } else {
@@ -93,10 +111,10 @@ function setupTournament() {
             endTournamentButton.show();
         }
 
-        if (tournament.roundCount <= tournament.roundTotal) {
-            roundCountDisplay.html(`Ronda ${tournament.roundCount}/${tournament.roundTotal}`);
+        if (roundCount <= tournament.roundTotal) {
+            roundCountDisplay.html(`Ronda ${roundCount}/${tournament.roundTotal}`);
         } else {
-            roundCountDisplay.html(`Ronda extra ${tournament.roundCount - tournament.roundTotal}`);
+            roundCountDisplay.html(`Ronda extra ${roundCount - tournament.roundTotal}`);
             CollapseController.toggleRanking(true);
         }
 
@@ -121,7 +139,7 @@ function setupTournament() {
                 lastClassification = classification;
             }
 
-            let row = getRankingRow(tiebreaker, classification, !!tournament.retreats.find(p => p.id === tiebreaker.player.id));
+            let row = getRankingRow(tiebreaker, classification, !!tournament.getRetreats().find(p => p.id === tiebreaker.player.id));
             rankingTableBody.append(row)
         }
 
@@ -139,7 +157,7 @@ function setupTournament() {
                     head = '<i class="bi bi-3-circle-fill" style="color: #CD7F32">';
                     break;
             }
-            
+
             let dropHtml = retreated ? ' <span class="badge text-bg-info float-end">Drop</span>' : '';
 
             let toShowTiebreaker =
