@@ -44,7 +44,7 @@ export function setupIndex() {
                 ? 'Terminado'
                 : t.tournament.getRoundCount() <= t.tournament.roundTotal
                     ? `Ronda ${t.tournament.getRoundCount()}/${t.tournament.roundTotal}`
-                    : `Ronda Extra ${t.tournament.roundTotal - t.tournament.getRoundCount()}`;
+                    : `Ronda Extra ${t.tournament.getRoundCount() - t.tournament.roundTotal}`;
 
             let html = `
             <tr>
