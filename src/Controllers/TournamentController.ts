@@ -5,17 +5,14 @@ import {setupRound} from "./RoundController.ts";
 import {Tiebreaker} from "../Models/Tiebreaker.ts";
 import {Tools} from "../Tools.ts";
 import {CollapseController} from "./CollapseController.ts";
-import {Round} from "../Models/Round.ts";
 
 let initializeUi = true;
 
 export function startTournament() {
     let players = PlayerStorage.GetPlayers();
     let tournament = new Tournament(players);
-    let round = tournament.getNextRound();
 
     TournamentStorage.saveTournament(tournament);
-    TournamentStorage.saveRound(round);
 
     setupTournament();
 }
@@ -38,45 +35,39 @@ function setupTournament() {
     if (initializeUi) {
         goBackRound.on('click', () => {
             let tournament = TournamentStorage.getTournament();
-            if (tournament.rounds.length === 0) {
-                return;
-            }
-
-            let round = tournament.rounds.pop()!;
+            tournament.goBackRound();
             TournamentStorage.saveTournament(tournament);
 
-            setRound(round);
+            doRound();
         });
 
         rerollRound.on('click', newRound);
 
         endRound.on('click', () => {
-            let activeRound = TournamentStorage.getRound();
-            if (!activeRound.isCompleted()) {
+            let tournament = TournamentStorage.getTournament();
+            if (!tournament.activeRound.isCompleted()) {
                 incompleteRoundModal.modal('show')
                 return;
             }
 
-            let tournament = TournamentStorage.getTournament();
-            tournament.rounds.push(activeRound);
+            tournament.digestAndSetNewRound()
             TournamentStorage.saveTournament();
 
-            newRound();
+            doRound();
         });
 
         endTournamentButton.on('click', () => {
-            let activeRound = TournamentStorage.getRound();
-            if (!activeRound.isCompleted()) {
+            let tournament = TournamentStorage.getTournament();
+            if (!tournament.activeRound.isCompleted()) {
                 incompleteRoundModal.modal('show')
                 return;
-            }
 
-            let tournament = TournamentStorage.getTournament();
-            tournament.rounds.push(activeRound);
+            }
+            tournament.digestAndSetNewRound()
             tournament.closed = true;
             TournamentStorage.saveTournament();
 
-            newRound();
+            doRound();
 
             CollapseController.showRanking();
         });
@@ -88,12 +79,9 @@ function setupTournament() {
 
     function newRound() {
         let tournament = TournamentStorage.getTournament();
-        let newRound = tournament.getNextRound();
-        setRound(newRound);
-    }
+        tournament.setNewRound();
+        TournamentStorage.saveTournament(tournament);
 
-    function setRound(round: Round) {
-        TournamentStorage.saveRound(round);
         doRound();
     }
 

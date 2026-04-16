@@ -3,6 +3,7 @@ import {Tiebreaker} from "./Models/Tiebreaker.ts";
 
 export const Tools = {
     byeId: 'X',
+    bye: {id: 'X', name: 'Bye' },
     getRequiredRounds(playersLength: number) {
         return playersLength == 0 ? 0 : Math.ceil(Math.log2(playersLength));
     },
