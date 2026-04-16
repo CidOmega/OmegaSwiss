@@ -12,6 +12,10 @@ export const PlayerStorage = {
         window.localStorage.setItem(this.Key, JSON.stringify(players));
     },
     DeletePlayerByIndex(index: number) {
+        if (isNaN(index)) {
+            return;
+        }
+
         let players = this.GetPlayers();
         players.splice(index, 1);
         window.localStorage.setItem(this.Key, JSON.stringify(players));

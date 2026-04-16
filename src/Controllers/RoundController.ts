@@ -211,15 +211,7 @@ export function setupRound() {
     function modifyRoundGenerator(modifyRound: (button: JQuery<HTMLElement>, round: Round) => boolean)
         : (e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) => void {
         return (e: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) => {
-            let button = $(e.target);
-            while (!button.is('button')) {
-                // Some icon or inner element was clicked, search upwards.
-                button = button.parent();
-                if (button.length === 0) {
-                    // No button found.
-                    return;
-                }
-            }
+            let button = $(e.currentTarget);
 
             let tournament = TournamentStorage.getTournament();
             let doSaveAndRender = modifyRound(button, tournament.activeRound);
