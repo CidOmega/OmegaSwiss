@@ -5,6 +5,7 @@ import {setupRound} from "./RoundController.ts";
 import {Tiebreaker} from "../Models/Tiebreaker.ts";
 import {Tools} from "../Tools.ts";
 import {CollapseController} from "./CollapseController.ts";
+import {Round} from "../Models/Round.ts";
 
 let initializeUi = true;
 
@@ -26,6 +27,7 @@ export function continueTournament() {
 function setupTournament() {
     let roundCountDisplay = $('#roundCountDisplay');
 
+    let goBackRound = $('#goBackRound');
     let rerollRound = $('#rerollRound');
     let endRound = $('#endRound');
     let incompleteRoundModal = $('#incompleteRoundModal');
@@ -34,6 +36,18 @@ function setupTournament() {
     let rankingTableBody = $('#rankingTable').find('tbody');
 
     if (initializeUi) {
+        goBackRound.on('click', () => {
+            let tournament = TournamentStorage.getTournament();
+            if (tournament.rounds.length === 0) {
+                return;
+            }
+
+            let round = tournament.rounds.pop()!;
+            TournamentStorage.saveTournament(tournament);
+
+            setRound(round);
+        });
+
         rerollRound.on('click', newRound);
 
         endRound.on('click', () => {
@@ -75,14 +89,19 @@ function setupTournament() {
     function newRound() {
         let tournament = TournamentStorage.getTournament();
         let newRound = tournament.getNextRound();
-        TournamentStorage.saveRound(newRound);
+        setRound(newRound);
+    }
+
+    function setRound(round: Round) {
+        TournamentStorage.saveRound(round);
         doRound();
-        renderRanking();
     }
 
     function doRound() {
         let tournament = TournamentStorage.getTournament();
         let roundCount = tournament.getRoundCount();
+
+        goBackRound.toggle(!!tournament.rounds.length)
 
         if (roundCount < tournament.roundTotal) {
             endRound.text('Terminar ronda');
@@ -138,7 +157,7 @@ function setupTournament() {
                     head = '<i class="bi bi-3-circle-fill" style="color: #CD7F32">';
                     break;
             }
-            
+
             let dropHtml = retreated ? ' <span class="badge text-bg-info float-end">Drop</span>' : '';
 
             let toShowTiebreaker =
