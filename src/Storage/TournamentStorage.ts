@@ -46,6 +46,10 @@ export abstract class TournamentStorage {
         return response;
     }
 
+    static deleteByTournamentId(tId: string) {
+        window.localStorage.removeItem(TournamentStorage.getStorageKey(tId));
+    }
+
     static deleteAll() {
         TournamentStorage.getAllTournamentKeys().forEach(key => window.localStorage.removeItem(key));
     }

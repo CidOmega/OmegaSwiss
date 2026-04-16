@@ -61,6 +61,12 @@ export function setupIndex() {
             `
             tournamentsTableBody.append(html);
         }
+
+        tournamentsTableBody.find('.btn-delete-tournament').on('click', (e) => {
+            let tId = $(e.currentTarget).attr('data-related')?.toString() ?? '';
+            TournamentStorage.deleteByTournamentId(tId);
+            renderTournaments();
+        })
     }
 }
 
