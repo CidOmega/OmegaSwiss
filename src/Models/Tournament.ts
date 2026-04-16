@@ -36,6 +36,12 @@ export class Tournament {
         return this.rounds.length + 1;
     }
 
+    getRoundText(): string {
+        return this.getRoundCount() <= this.roundTotal
+            ? `Ronda ${this.getRoundCount()}/${this.roundTotal}`
+            : `Ronda Extra ${this.getRoundCount() - this.roundTotal}`;
+    }
+
     getRetreats(): Player[] {
         return this.rounds.flatMap(r => r.retreats);
     }

@@ -42,9 +42,7 @@ export function setupIndex() {
             let dateString = `${ddString}/${monthString}/${d.getFullYear()} ${hhString}:${mmString}:${ssString}h`;
             let roundString = t.tournament.closed
                 ? 'Terminado'
-                : t.tournament.getRoundCount() <= t.tournament.roundTotal
-                    ? `Ronda ${t.tournament.getRoundCount()}/${t.tournament.roundTotal}`
-                    : `Ronda Extra ${t.tournament.getRoundCount() - t.tournament.roundTotal}`;
+                : t.tournament.getRoundText();
 
             let html = `
             <tr>

@@ -99,10 +99,8 @@ function setupTournament() {
             endTournamentButton.show();
         }
 
-        if (roundCount <= tournament.roundTotal) {
-            roundCountDisplay.html(`Ronda ${roundCount}/${tournament.roundTotal}`);
-        } else {
-            roundCountDisplay.html(`Ronda extra ${roundCount - tournament.roundTotal}`);
+        roundCountDisplay.html(tournament.getRoundText());
+        if (tournament.roundTotal < roundCount) {
             CollapseController.toggleRanking(true);
         }
 
