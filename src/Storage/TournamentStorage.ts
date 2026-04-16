@@ -1,29 +1,43 @@
 import {Tournament} from "../Models/Tournament.ts";
 
-let tournamentCache: Tournament | null = null;
-const keyTournament = 'tournament';
 
 export abstract class TournamentStorage {
+    static urlKey = 'tId';
+    private static keyTournamentStart = 'tournament';
+
+    private static tournamentId = new URLSearchParams(window.location.search).get(TournamentStorage.urlKey)
+        ?? Date.now();
+    private static storageKey = `${TournamentStorage.keyTournamentStart}-${TournamentStorage.tournamentId}`;
+
+    private static tournamentCache: Tournament | null = null;
+
     static getTournament(): Tournament {
-        if (!tournamentCache) {
-            let tournamentText = window.localStorage.getItem(keyTournament);
+        if (!TournamentStorage.tournamentCache) {
+            let tournamentText = window.localStorage.getItem(TournamentStorage.storageKey);
             if (!tournamentText) {
                 let t = new Tournament([]);
                 t.closed = true;
                 return t;
             }
             let baseTournament: Tournament = JSON.parse(tournamentText);
-            tournamentCache = Tournament.copy(baseTournament)
+            TournamentStorage.tournamentCache = Tournament.copy(baseTournament)
         }
-        return tournamentCache;
+        return TournamentStorage.tournamentCache;
     }
 
     static saveTournament(tournament: Tournament | null = null) {
-        tournamentCache = tournament ?? tournamentCache;
-        window.localStorage.setItem(keyTournament, JSON.stringify(tournamentCache));
+        TournamentStorage.tournamentCache = tournament ?? TournamentStorage.tournamentCache;
+        window.localStorage.setItem(TournamentStorage.storageKey, JSON.stringify(TournamentStorage.tournamentCache));
+    }
+
+    static getAllTournamentKeys() {
+        return Object.keys(window.localStorage)
+            .filter(key => key.startsWith(TournamentStorage.keyTournamentStart))
+            .sort()
+            .reverse();
     }
 
     static deleteAll() {
-        window.localStorage.removeItem(keyTournament);
+        TournamentStorage.getAllTournamentKeys().forEach(key => window.localStorage.removeItem(key));
     }
 }
