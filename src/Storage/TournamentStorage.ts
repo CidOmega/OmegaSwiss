@@ -2,8 +2,9 @@ import {Tournament} from "../Models/Tournament.ts";
 
 let tournamentCache: Tournament | null = null;
 const keyTournament = 'tournament';
-export const TournamentStorage = {
-    getTournament(): Tournament {
+
+export abstract class TournamentStorage {
+    static getTournament(): Tournament {
         if (!tournamentCache) {
             let tournamentText = window.localStorage.getItem(keyTournament);
             if (!tournamentText) {
@@ -15,12 +16,14 @@ export const TournamentStorage = {
             tournamentCache = Tournament.copy(baseTournament)
         }
         return tournamentCache;
-    },
-    saveTournament(tournament: Tournament | null = null) {
+    }
+
+    static saveTournament(tournament: Tournament | null = null) {
         tournamentCache = tournament ?? tournamentCache;
         window.localStorage.setItem(keyTournament, JSON.stringify(tournamentCache));
-    },
-    deleteAll() {
+    }
+
+    static deleteAll() {
         window.localStorage.removeItem(keyTournament);
-    },
-};
+    }
+}
