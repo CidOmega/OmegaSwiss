@@ -12,16 +12,14 @@ export interface Tiebreaker {
     matchWinPercentage: number;
     opponentsMatchWinPercentage: number;
     binary: number;
+    fullValue: number;
+    fullValueText: string;
 }
 
 export abstract class TiebreakerTools {
     static compareTiebreaker(a: Tiebreaker, b: Tiebreaker, compareName: boolean = true): number {
         // Descending
-        return b.matchPoints - a.matchPoints
-            // Descending
-            || b.opponentsMatchWinPercentage - a.opponentsMatchWinPercentage
-            // Descending
-            || b.binary - a.binary
+        return b.fullValue - a.fullValue
             // Ascending
             || (compareName ? a.player.name.localeCompare(b.player.name) : 0);
     }
@@ -40,6 +38,8 @@ export abstract class TiebreakerTools {
                     matchWinPercentage: statistics.getMatchWinPercentaje(),
                     opponentsMatchWinPercentage: 0,
                     binary: 0,
+                    fullValue: 0,
+                    fullValueText: '0',
                 }];
             }));
 
@@ -72,6 +72,7 @@ export abstract class TiebreakerTools {
             playerTiebreakers.push(tiebreaker);
         }
 
+        TiebreakerTools.setFullValues(playerTiebreakers);
         playerTiebreakers.sort(TiebreakerTools.compareTiebreaker);
         TiebreakerTools.setClassifications(playerTiebreakers);
 
@@ -95,5 +96,17 @@ export abstract class TiebreakerTools {
 
             tiebreaker.classification = classification;
         }
+    }
+
+    private static setFullValues(playerTiebreakers: Tiebreaker[]) {
+        playerTiebreakers.forEach(t => TiebreakerTools.setFullValue(t));
+    }
+
+    private static setFullValue(playerTiebreaker: Tiebreaker) {
+        playerTiebreaker.fullValue =
+            playerTiebreaker.matchPoints * 1000 * 1000 * 1000
+            + Math.floor(playerTiebreaker.opponentsMatchWinPercentage * 1000 * 1000) * 1000
+            + playerTiebreaker.binary;
+        playerTiebreaker.fullValueText = playerTiebreaker.fullValue.toLocaleString('en-us');
     }
 }

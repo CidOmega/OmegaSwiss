@@ -120,6 +120,33 @@ describe('TiebreakerTools.getRanking', () => {
         }
     });
 
+    test('classification order', () => {
+        // Act
+        let ranking = TiebreakerTools.getRanking(tournament);
+
+        // Assert
+        expect(ranking[0].classification).toBe(1);
+        expect(ranking[0].player.id).toBe('1');
+
+        expect(ranking[1].classification).toBe(2);
+        expect(ranking[1].player.id).toBe('2');
+
+        expect(ranking[2].classification).toBe(3);
+        expect(ranking[2].player.id).toBe('5');
+
+        expect(ranking[3].classification).toBe(4);
+        expect(ranking[3].player.id).toBe('3');
+
+        expect(ranking[4].classification).toBe(5);
+        expect(ranking[4].player.id).toBe('7');
+
+        expect(ranking[5].classification).toBe(6);
+        expect(ranking[5].player.id).toBe('4');
+
+        expect(ranking[6].classification).toBe(7);
+        expect(ranking[6].player.id).toBe('6');
+    });
+
     it.each([
         [players[1].id, '3-0-0'],
         [players[2].id, '2-1-0'],
