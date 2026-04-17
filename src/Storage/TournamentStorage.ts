@@ -36,7 +36,9 @@ export abstract class TournamentStorage {
         let keys = TournamentStorage.getAllTournamentKeys();
         for (let key of keys) {
             let tournamentText = window.localStorage.getItem(key);
-            if (!tournamentText) {
+            if (!tournamentText || tournamentText.indexOf("allPlayerHistories") !== -1) {
+                // Broken key or old tournament...
+                window.localStorage.getItem(key);
                 continue;
             }
             let tournament = TournamentStorage.parseTournament(tournamentText);
