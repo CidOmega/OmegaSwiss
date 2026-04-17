@@ -1,27 +1,11 @@
 import {TournamentStorage} from "../Storage/TournamentStorage.ts";
-import {Tournament} from "../Models/Tournament.ts";
-import {PlayerStorage} from "../Storage/PlayerStorage.ts";
 import {setupRound} from "./RoundController.ts";
-import {Tiebreaker} from "../Models/Tiebreaker.ts";
-import {Tools} from "../Tools.ts";
+import {Tiebreaker, TiebreakerTools} from "../Models/Tiebreaker.ts";
 import {CollapseController} from "./CollapseController.ts";
 
 let initializeUi = true;
 
-export function startTournament() {
-    let players = PlayerStorage.GetPlayers();
-    let tournament = new Tournament(players);
-
-    TournamentStorage.saveTournament(tournament);
-
-    setupTournament();
-}
-
-export function continueTournament() {
-    setupTournament();
-}
-
-function setupTournament() {
+export function setupTournament() {
     let roundCountDisplay = $('#roundCountDisplay');
 
     let goBackRound = $('#goBackRound');
@@ -110,14 +94,14 @@ function setupTournament() {
 
     function renderRanking() {
         let tournament = TournamentStorage.getTournament();
-        let playerTiebreakers = tournament.getRanking();
+        let playerTiebreakers = TiebreakerTools.getRanking(tournament);
 
         rankingTableBody.html('')
         let lastClassification = 1;
         for (let i = 0; i < playerTiebreakers.length; i++) {
             let tiebreaker = playerTiebreakers[i];
             let classification = i + 1;
-            if (i !== 0 && Tools.compareTiebreaker(tiebreaker, playerTiebreakers[i - 1], false) === 0) {
+            if (i !== 0 && TiebreakerTools.compareTiebreaker(tiebreaker, playerTiebreakers[i - 1], false) === 0) {
                 // On tie, reuse lastClassification.
                 classification = lastClassification;
             } else {
