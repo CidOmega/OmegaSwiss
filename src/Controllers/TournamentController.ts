@@ -97,23 +97,13 @@ export function setupTournament() {
         let playerTiebreakers = TiebreakerTools.getRanking(tournament);
 
         rankingTableBody.html('')
-        let lastClassification = 1;
-        for (let i = 0; i < playerTiebreakers.length; i++) {
-            let tiebreaker = playerTiebreakers[i];
-            let classification = i + 1;
-            if (i !== 0 && TiebreakerTools.compareTiebreaker(tiebreaker, playerTiebreakers[i - 1], false) === 0) {
-                // On tie, reuse lastClassification.
-                classification = lastClassification;
-            } else {
-                // If no tie, update lastClassification.
-                lastClassification = classification;
-            }
-
-            let row = getRankingRow(tiebreaker, classification, !!tournament.getRetreats().find(p => p.id === tiebreaker.player.id));
+        for (let tiebreaker of playerTiebreakers) {
+            let row = getRankingRow(tiebreaker, !!tournament.getRetreats().find(p => p.id === tiebreaker.player.id));
             rankingTableBody.append(row)
         }
 
-        function getRankingRow(tiebreaker: Tiebreaker, classification: number, retreated: boolean) {
+        function getRankingRow(tiebreaker: Tiebreaker, retreated: boolean) {
+            let classification = tiebreaker.classification;
             let head = classification.toString();
 
             switch (classification) {
@@ -137,13 +127,13 @@ export function setupTournament() {
             let titleTiebreaker = `${tiebreaker.matchPoints}\n${tiebreaker.opponentsMatchWinPercentage}\n${tiebreaker.binary}`
 
             return `
-    <tr>
-    <th scope="row" class="text-center">${head}</th>
-    <td title="vs\n${tiebreaker.rivalNames.join('\n')}">${tiebreaker.player.name}${dropHtml}</td>
-    <td>${tiebreaker.kda}</td>
-    <td title="${titleTiebreaker}">${toShowTiebreaker.toLocaleString('en-us')}</td>
-    </tr>
-`;
+                <tr>
+                    <th scope="row" class="text-center">${head}</th>
+                    <td title="vs\n${tiebreaker.rivalNames.join('\n')}">${tiebreaker.player.name}${dropHtml}</td>
+                    <td>${tiebreaker.kda}</td>
+                    <td title="${titleTiebreaker}">${toShowTiebreaker.toLocaleString('en-us')}</td>
+                </tr>
+            `;
         }
     }
 }

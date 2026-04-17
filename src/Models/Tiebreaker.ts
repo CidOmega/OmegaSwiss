@@ -4,6 +4,7 @@ import {MatchResultEnum} from "./MatchResultEnum.ts";
 import {Tournament} from "./Tournament.ts";
 
 export interface Tiebreaker {
+    classification: number;
     player: Player;
     kda: string;
     rivalNames: string[];
@@ -31,6 +32,7 @@ export abstract class TiebreakerTools {
             Object.fromEntries(allPlayerHistories.map(ph => {
                 let statistics = ph.getStatistics();
                 return [ph.player.id, {
+                    classification: -1,
                     player: ph.player,
                     kda: statistics.getKda(),
                     rivalNames: ph.matchResults.map(r => `${r.player.name} - ${MatchResultEnum[r.result]}`),
@@ -71,7 +73,27 @@ export abstract class TiebreakerTools {
         }
 
         playerTiebreakers.sort(TiebreakerTools.compareTiebreaker);
+        TiebreakerTools.setClassifications(playerTiebreakers);
 
         return playerTiebreakers;
+    }
+
+    private static setClassifications(playerTiebreakers: Tiebreaker[]) {
+        let lastClassification = 1;
+        for (let i = 0; i < playerTiebreakers.length; i++) {
+            let tiebreaker = playerTiebreakers[i];
+
+            let classification = i + 1;
+            if (i !== 0 && TiebreakerTools.compareTiebreaker(tiebreaker, playerTiebreakers[i - 1], false) === 0) {
+                // Skip i === 0 for array out of bounds on playerTiebreakers[i - 1] call.
+                // On tie, reuse lastClassification.
+                classification = lastClassification;
+            } else {
+                // If no tie, update lastClassification.
+                lastClassification = classification;
+            }
+
+            tiebreaker.classification = classification;
+        }
     }
 }
