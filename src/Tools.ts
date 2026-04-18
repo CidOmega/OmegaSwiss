@@ -44,4 +44,13 @@ export abstract class Tools {
         let index = array.indexOf(element);
         array.splice(index, 1);
     }
+
+    static escapeHtml(unsafe: string) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    };
 }

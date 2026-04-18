@@ -2,6 +2,7 @@ import {TournamentStorage} from "../Storage/TournamentStorage.ts";
 import {setupRound} from "./RoundController.ts";
 import {Tiebreaker, TiebreakerTools} from "../Models/Tiebreaker.ts";
 import {CollapseController} from "./CollapseController.ts";
+import {Tools} from "../Tools.ts";
 
 let initializeUi = true;
 
@@ -120,18 +121,12 @@ export function setupTournament() {
 
             let dropHtml = retreated ? ' <span class="badge text-bg-info float-end">Drop</span>' : '';
 
-            let toShowTiebreaker =
-                tiebreaker.matchPoints * 1000 * 1000 * 1000
-                + Math.floor(tiebreaker.opponentsMatchWinPercentage * 1000 * 1000) * 1000
-                + tiebreaker.binary;
-            let titleTiebreaker = `${tiebreaker.matchPoints}\n${tiebreaker.opponentsMatchWinPercentage}\n${tiebreaker.binary}`
-
             return `
                 <tr>
                     <th scope="row" class="text-center">${head}</th>
                     <td title="vs\n${tiebreaker.rivalNames.join('\n')}">${tiebreaker.player.name}${dropHtml}</td>
                     <td>${tiebreaker.kda}</td>
-                    <td title="${titleTiebreaker}">${toShowTiebreaker.toLocaleString('en-us')}</td>
+                    <td title="${Tools.escapeHtml(JSON.stringify(tiebreaker, null, 2))}">${tiebreaker.fullValueText}</td>
                 </tr>
             `;
         }
