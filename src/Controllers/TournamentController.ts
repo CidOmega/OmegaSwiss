@@ -1,27 +1,12 @@
 import {TournamentStorage} from "../Storage/TournamentStorage.ts";
-import {Tournament} from "../Models/Tournament.ts";
-import {PlayerStorage} from "../Storage/PlayerStorage.ts";
 import {setupRound} from "./RoundController.ts";
-import {Tiebreaker} from "../Models/Tiebreaker.ts";
-import {Tools} from "../Tools.ts";
+import {Tiebreaker, TiebreakerTools} from "../Models/Tiebreaker.ts";
 import {CollapseController} from "./CollapseController.ts";
+import {Tools} from "../Tools.ts";
 
 let initializeUi = true;
 
-export function startTournament() {
-    let players = PlayerStorage.GetPlayers();
-    let tournament = new Tournament(players);
-
-    TournamentStorage.saveTournament(tournament);
-
-    setupTournament();
-}
-
-export function continueTournament() {
-    setupTournament();
-}
-
-function setupTournament() {
+export function setupTournament() {
     let roundCountDisplay = $('#roundCountDisplay');
 
     let goBackRound = $('#goBackRound');
@@ -110,26 +95,16 @@ function setupTournament() {
 
     function renderRanking() {
         let tournament = TournamentStorage.getTournament();
-        let playerTiebreakers = tournament.getRanking();
+        let playerTiebreakers = TiebreakerTools.getRanking(tournament);
 
         rankingTableBody.html('')
-        let lastClassification = 1;
-        for (let i = 0; i < playerTiebreakers.length; i++) {
-            let tiebreaker = playerTiebreakers[i];
-            let classification = i + 1;
-            if (i !== 0 && Tools.compareTiebreaker(tiebreaker, playerTiebreakers[i - 1], false) === 0) {
-                // On tie, reuse lastClassification.
-                classification = lastClassification;
-            } else {
-                // If no tie, update lastClassification.
-                lastClassification = classification;
-            }
-
-            let row = getRankingRow(tiebreaker, classification, !!tournament.getRetreats().find(p => p.id === tiebreaker.player.id));
+        for (let tiebreaker of playerTiebreakers) {
+            let row = getRankingRow(tiebreaker, !!tournament.getRetreats().find(p => p.id === tiebreaker.player.id));
             rankingTableBody.append(row)
         }
 
-        function getRankingRow(tiebreaker: Tiebreaker, classification: number, retreated: boolean) {
+        function getRankingRow(tiebreaker: Tiebreaker, retreated: boolean) {
+            let classification = tiebreaker.classification;
             let head = classification.toString();
 
             switch (classification) {
@@ -146,20 +121,14 @@ function setupTournament() {
 
             let dropHtml = retreated ? ' <span class="badge text-bg-info float-end">Drop</span>' : '';
 
-            let toShowTiebreaker =
-                tiebreaker.matchPoints * 1000 * 1000 * 1000
-                + Math.floor(tiebreaker.opponentsMatchWinPercentage * 1000 * 1000) * 1000
-                + tiebreaker.binary;
-            let titleTiebreaker = `${tiebreaker.matchPoints}\n${tiebreaker.opponentsMatchWinPercentage}\n${tiebreaker.binary}`
-
             return `
-    <tr>
-    <th scope="row" class="text-center">${head}</th>
-    <td title="vs\n${tiebreaker.rivalNames.join('\n')}">${tiebreaker.player.name}${dropHtml}</td>
-    <td>${tiebreaker.kda}</td>
-    <td title="${titleTiebreaker}">${toShowTiebreaker.toLocaleString('en-us')}</td>
-    </tr>
-`;
+                <tr>
+                    <th scope="row" class="text-center">${head}</th>
+                    <td title="vs\n${tiebreaker.rivalNames.join('\n')}">${tiebreaker.player.name}${dropHtml}</td>
+                    <td>${tiebreaker.kda}</td>
+                    <td title="${Tools.escapeHtml(JSON.stringify(tiebreaker, null, 2))}">${tiebreaker.fullValueText}</td>
+                </tr>
+            `;
         }
     }
 }

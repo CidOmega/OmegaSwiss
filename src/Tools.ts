@@ -1,5 +1,4 @@
 import {Player, PlayerWithStatistics} from "./Models/Player.ts";
-import {Tiebreaker} from "./Models/Tiebreaker.ts";
 
 export abstract class Tools {
     static byeId = 'X';
@@ -46,14 +45,17 @@ export abstract class Tools {
         array.splice(index, 1);
     }
 
-    static compareTiebreaker(a: Tiebreaker, b: Tiebreaker, compareName: boolean = true): number {
-        // Descending
-        return b.matchPoints - a.matchPoints
-            // Descending
-            || b.opponentsMatchWinPercentage - a.opponentsMatchWinPercentage
-            // Descending
-            || b.binary - a.binary
-            // Ascending
-            || (compareName ? a.player.name.localeCompare(b.player.name) : 0);
-    }
+    static escapeHtml(unsafe: string) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    };
+
+    static average(array: number[]) {
+        // Math.max(1, rivalCount) to prevent division by zero on empty list.
+        return array.reduce((a, b) => a + b, 0) / Math.max(1, array.length);
+    };
 }
