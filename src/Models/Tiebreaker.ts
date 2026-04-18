@@ -13,6 +13,7 @@ export interface Tiebreaker {
     matchWinPercentage: number;
     opponentsMatchWinList: number[];
     opponentsMatchWinPercentage: number;
+    opponentsOpponentsMatchWinPercentage: number;
     lostSquared: number;
     binary: number; // Obsolete?
     fullValue: number;
@@ -38,9 +39,10 @@ export abstract class TiebreakerTools {
                     kda: statistics.getKda(),
                     rivalNames: ph.matchResults.map(r => `${r.player.name} - ${MatchResultEnum[r.result]}`),
                     matchPoints: statistics.getMatchPoints(),
-                    matchWinPercentage: statistics.getMatchWinPercentaje(),
+                    matchWinPercentage: statistics.getTrueMatchWinPercentaje(), // ¿¡El True!?
                     opponentsMatchWinList: [],
                     opponentsMatchWinPercentage: 0,
+                    opponentsOpponentsMatchWinPercentage: 0,
                     lostSquared: 0,
                     binary: 0,
                     fullValue: 0,
@@ -74,6 +76,13 @@ export abstract class TiebreakerTools {
             playerTiebreakers.push(tiebreaker);
         }
 
+        // Another round, because we need all the opponentsMatchWinList filled.
+        for (let ph of allPlayerHistories) {
+            let tiebreaker = playerTiebreakersDictionary[ph.player.id];
+            let oomwList = TiebreakerTools.getOpponentsOpponentsMatchWinList(ph.matchResults, playerTiebreakersDictionary);
+            tiebreaker.opponentsOpponentsMatchWinPercentage = Tools.average(oomwList);
+        }
+
         TiebreakerTools.setFullValues(playerTiebreakers);
         playerTiebreakers.sort(TiebreakerTools.compareTiebreaker);
         TiebreakerTools.setClassifications(playerTiebreakers);
@@ -95,6 +104,24 @@ export abstract class TiebreakerTools {
         }
 
         return omwList;
+    }
+
+    private static getOpponentsOpponentsMatchWinList(
+        matchResults: MatchResult[],
+        playerTiebreakersDictionary: { [id: string]: Tiebreaker }) {
+
+        let oomwList: number[] = [];
+        for (let i = 0; i < matchResults.length; i++) {
+            let rival = matchResults[i];
+
+            if (rival.player.id === Tools.byeId) continue;
+
+            let rivalTieBreaker = playerTiebreakersDictionary[rival.player.id];
+
+            oomwList.push(...rivalTieBreaker.opponentsMatchWinList);
+        }
+
+        return oomwList;
     }
 
     private static setClassifications(playerTiebreakers: Tiebreaker[]) {
@@ -123,8 +150,9 @@ export abstract class TiebreakerTools {
     private static setFullValue(playerTiebreaker: Tiebreaker) {
         playerTiebreaker.fullValue =
             playerTiebreaker.matchPoints * 1000 * 1000 * 1000
-            + Math.floor(playerTiebreaker.opponentsMatchWinPercentage * 1000 * 1000) * 1000
-            + playerTiebreaker.binary;
+            + Math.floor(playerTiebreaker.opponentsMatchWinPercentage * 1000) * 1000 * 1000
+            + Math.floor(playerTiebreaker.opponentsOpponentsMatchWinPercentage * 1000) * 1000
+            + playerTiebreaker.lostSquared;
         playerTiebreaker.fullValueText = playerTiebreaker.fullValue.toLocaleString('en-us');
     }
 }
