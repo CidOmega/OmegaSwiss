@@ -53,4 +53,9 @@ export abstract class Tools {
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
     };
+
+    static average(array: number[]) {
+        // Math.max(1, rivalCount) to prevent division by zero on empty list.
+        return array.reduce((a, b) => a + b, 0) / Math.max(1, array.length);
+    };
 }
