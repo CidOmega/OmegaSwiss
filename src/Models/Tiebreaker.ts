@@ -11,7 +11,8 @@ export interface Tiebreaker {
     matchPoints: number;
     matchWinPercentage: number;
     opponentsMatchWinPercentage: number;
-    binary: number;
+    lostSquared: number;
+    binary: number; // Obsolete?
     fullValue: number;
     fullValueText: string;
 }
@@ -37,6 +38,7 @@ export abstract class TiebreakerTools {
                     matchPoints: statistics.getMatchPoints(),
                     matchWinPercentage: statistics.getMatchWinPercentaje(),
                     opponentsMatchWinPercentage: 0,
+                    lostSquared: 0,
                     binary: 0,
                     fullValue: 0,
                     fullValueText: '0',
@@ -47,9 +49,12 @@ export abstract class TiebreakerTools {
         for (let ph of allPlayerHistories) {
             let omwpSum = 0;
             let rivalCount = 0;
+            let lostSquared = 0;
             let binary = 0;
             for (let i = 0; i < ph.matchResults.length; i++) {
                 let rival = ph.matchResults[i];
+
+                lostSquared += rival.result === MatchResultEnum.Lose ? Math.pow(i + 1, 2) : 0;
 
                 // Lose, Lose, Win, Lose, Win -> 0b10100 -> 20
                 // Last matches weight more, supposedly not fair...
@@ -64,6 +69,8 @@ export abstract class TiebreakerTools {
             let tiebreaker = playerTiebreakersDictionary[ph.player.id];
             // Math.max(1, rivalCount) to prevent division by zero on only bye rival. 
             tiebreaker.opponentsMatchWinPercentage = omwpSum / Math.max(1, rivalCount);
+
+            tiebreaker.lostSquared = lostSquared;
 
             // Power the binary to hide simplicity...
             let pow = Math.max(1, 7 - tournament.getRoundCount());
